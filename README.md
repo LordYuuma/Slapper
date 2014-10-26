@@ -4,11 +4,13 @@ Slapper
 The most extensible IRC /slap you have ever seen
 
 Installing:
+----------
     Put this into your hexchat/addons directory and then load it. Make sure you have the python
     interface for hexchat installed.
 
 Usage:
-    To slap someone simply type /slap &<target&> [object]. By default you will then hit your
+------
+    To slap someone simply type /slap &lttarget&gt [object]. By default you will then hit your
     target with a trout. Use the python class for defining more objects to hit someone with.
 
     Slapper("foo") will create a new Slapper called "foo". foo = Slapper("foo") will do the
@@ -26,5 +28,6 @@ Usage:
         {count_ordinal} = the current usage count in english ordinals
 
 TODO:
+-----
     Remove hardcoded command[0]
     customizable count offset and stepsize.
