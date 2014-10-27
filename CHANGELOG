@@ -1,0 +1,8 @@
+2.1:
+    Representing preference list as key => value dictionary instead of an array
+    Removing hardcoded zero commands (instead "default" is used, when there is no key available)
+2.0:
+    more code density, using lambdas where useful
+    added interaction with python console
+1.0:
+    not really usable code blob, core functionality

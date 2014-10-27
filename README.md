@@ -29,8 +29,3 @@ Usage:
         {count_ordinal} = the current usage count in english ordinals
 
     You can also modify the count manually with foo.count.
-
-TODO:
------
-    Remove hardcoded command[0]
-    customizable count offset and stepsize.

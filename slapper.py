@@ -15,7 +15,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 __module_name__ = "Slapper"
-__module_version__ = "2.0"
+__module_version__ = "2.1"
 __module_description__ = "An extensible '/slap' command for the HexChat IRC client."
 __author__ = "LordYuuma"
 
@@ -31,7 +31,13 @@ CONF_KEY_OBJECT = "object"
 DEFAULT_SLAPPER = "trout"
 DEFAULT_OBJECT = "a large trout"
 
-vars_to_prefkey = lambda *args, **kwargs : " ".join(args).format(**kwargs).replace("'", "").replace("\"","").lower().strip().replace(" ", "_")
+def strip_prefixes(string, *prefixes):
+    string = parts_to_prefkey(string)
+    prefix = parts_to_prefkey(*prefixes)
+    if not string.find(prefix): string = string.replace(prefix, "", 1)
+    return parts_to_prefkey(string.replace("_", " "))
+
+parts_to_prefkey = lambda *parts, **format_args : " ".join(parts).format(**format_args).replace("'", "").replace("\"","").lower().strip().replace(" ", "_")
 
 # from this codegolf: http://codegolf.stackexchange.com/questions/4707/outputting-ordinal-numbers-1st-2nd-3rd#answer-4712
 ordinal = lambda n : "{}{}".format(n, "tsnrhtdd"[(n/10%10!=1)*(n%10<4)*n%10::4])
@@ -49,35 +55,36 @@ def callback(word, word_eol, userdata):
 class HexchatPrefList(object):
 
     def __init__(self, *args):
-        self.prefkeys = vars_to_prefkey(*args)
+        self.prefkeys = parts_to_prefkey(*args)
 
-    __getitem__ = lambda self, key : hexchat.get_pluginpref(vars_to_prefkey(self.prefkeys, "{key}", key = key))
-    __setitem__ = lambda self, key, value : hexchat.set_pluginpref(vars_to_prefkey(self.prefkeys, "{key}", key = key), value)
-    __delitem__ = lambda self, key : hexchat.del_pluginpref(vars_to_prefkey(self.prefkeys, "{key}", key = key))
-    __iter__ = lambda self : (hexchat.get_pluginpref(cmd) for cmd in hexchat.list_pluginpref() if vars_to_prefkey(self.prefkeys) in cmd)
-    __repr__ = lambda self : "[" + ", ".join(["\"" + pref + "\"" for pref in self]) + "]" # reconstructed list's repr, so that formatting is the same as in hexchat.
+    __getitem__ = lambda self, key : hexchat.get_pluginpref(parts_to_prefkey(self.prefkeys, "{key}", key = key))
+    __setitem__ = lambda self, key, value : hexchat.set_pluginpref(parts_to_prefkey(self.prefkeys, "{key}", key = key), value)
+    __delitem__ = lambda self, key : hexchat.del_pluginpref(parts_to_prefkey(self.prefkeys, "{key}", key = key))
+    __iter__ = lambda self : ((strip_prefixes(pref, self.prefkeys), hexchat.get_pluginpref(pref)) for pref in hexchat.list_pluginpref() if parts_to_prefkey(self.prefkeys) in pref)
+    __repr__ = lambda self : "{" + ", ".join(["\'" + key + "\' : \'" + pref + "\'" for key, pref in self]) + "}" # reconstructed dict's repr, so that formatting is the same as in hexchat.
+    __len__ = lambda self : len([obj for obj in self])
 
 class Slapper(object):
 
-    count = property(lambda self : hexchat.get_pluginpref(vars_to_prefkey(CONF_PREFIX, self.name, CONF_KEY_COUNT)),
-                     lambda self, value : hexchat.set_pluginpref(vars_to_prefkey(CONF_PREFIX, self.name, CONF_KEY_COUNT), value),
-                     lambda self : hexchat.del_pluginpref(vars_to_prefkey(CONF_PREFIX, self.name, CONF_KEY_COUNT)))
+    count = property(lambda self : hexchat.get_pluginpref(parts_to_prefkey(CONF_PREFIX, self.name, CONF_KEY_COUNT)),
+                     lambda self, value : hexchat.set_pluginpref(parts_to_prefkey(CONF_PREFIX, self.name, CONF_KEY_COUNT), value),
+                     lambda self : hexchat.del_pluginpref(parts_to_prefkey(CONF_PREFIX, self.name, CONF_KEY_COUNT)))
 
-    slapobject = property(lambda self : hexchat.get_pluginpref(vars_to_prefkey(CONF_PREFIX, self.name, CONF_KEY_OBJECT)),
-                          lambda self, value : hexchat.set_pluginpref(vars_to_prefkey(CONF_PREFIX, self.name, CONF_KEY_OBJECT), value),
-                          lambda self : hexchat.del_pluginpref(vars_to_prefkey(CONF_PREFIX, self.name, CONF_KEY_OBJECT)))
+    slapobject = property(lambda self : hexchat.get_pluginpref(parts_to_prefkey(CONF_PREFIX, self.name, CONF_KEY_OBJECT)),
+                          lambda self, value : hexchat.set_pluginpref(parts_to_prefkey(CONF_PREFIX, self.name, CONF_KEY_OBJECT), value),
+                          lambda self : hexchat.del_pluginpref(parts_to_prefkey(CONF_PREFIX, self.name, CONF_KEY_OBJECT)))
 
     def __init__(self, name):
         self.name = name
         if not self.slapobject:
             self.slapobject = self.name
         self.commands = HexchatPrefList(CONF_PREFIX, self.name, CONF_KEY_COMMAND)
-        if not self.commands[0]:
-            self.commands[0] = "me slaps \002{target}\002 with {slapobject}."
+        if len(self.commands) == 0:
+            self.commands["default"] = "me slaps \002{target}\002 with {slapobject}."
 
     def slap(self, target):
         self.count = self.count + 1 if self.count else 1
-        for command in self.commands:
+        for key, command in self.commands:
             hexchat.command(literal("'" + command + "'").format(target = target, slapobject = self.slapobject, count = self.count, count_ordinal = ordinal(self.count)))
 
 default_slapper = Slapper(DEFAULT_SLAPPER)
