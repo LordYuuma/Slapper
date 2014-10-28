@@ -15,7 +15,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 __module_name__ = "Slapper"
-__module_version__ = "2.1"
+__module_version__ = "2.2"
 __module_description__ = "An extensible '/slap' command for the HexChat IRC client."
 __author__ = "LordYuuma"
 
@@ -61,7 +61,7 @@ class HexchatPrefList(object):
     __setitem__ = lambda self, key, value : hexchat.set_pluginpref(parts_to_prefkey(self.prefkeys, "{key}", key = key), value)
     __delitem__ = lambda self, key : hexchat.del_pluginpref(parts_to_prefkey(self.prefkeys, "{key}", key = key))
     __iter__ = lambda self : ((strip_prefixes(pref, self.prefkeys), hexchat.get_pluginpref(pref)) for pref in hexchat.list_pluginpref() if parts_to_prefkey(self.prefkeys) in pref)
-    __repr__ = lambda self : "{" + ", ".join(["\'" + key + "\' : \'" + pref + "\'" for key, pref in self]) + "}" # reconstructed dict's repr, so that formatting is the same as in hexchat.
+    __repr__ = lambda self : "{" + ", ".join(["\'" + key + "\' : \'" + pref + "\'" for key, pref in self]) + "}" # reconstructed dict's repr, so that formatting is the same as in the hexchat output.
     __len__ = lambda self : len([obj for obj in self])
 
 class Slapper(object):
@@ -79,18 +79,23 @@ class Slapper(object):
         if not self.slapobject:
             self.slapobject = self.name
         self.commands = HexchatPrefList(CONF_PREFIX, self.name, CONF_KEY_COMMAND)
-        if len(self.commands) == 0:
-            self.commands["default"] = "me slaps \002{target}\002 with {slapobject}."
+        if len(self.commands) == 0: self.commands["default"] = "me slaps \002{target}\002 with {slapobject}."
 
+    # a few things you should know:
+    # 1st: commands are python format strings, that are interpreted as hexchat commands.
+    # 2nd: "py exec" followed by any python statement IS a valid hexchat command if you load this plugin.
+    # 3rd: this CAN be used to nuke your system.
+    # 4th: I do not intend to check your input, as any limitation would also mean not letting you do the cool stuff :>
+    # 5th: Don't let anybody mess up with your config files.
+    # 6th: This is not a security issue as anyone, who has access to this plugin's variables already has access to much more important stuff on your machine
     def slap(self, target):
-        self.count = self.count + 1 if self.count else 1
+        self.count = (self.count if self.count != None else 0) + 1
         for key, command in self.commands:
-            hexchat.command(literal("'" + command + "'").format(target = target, slapobject = self.slapobject, count = self.count, count_ordinal = ordinal(self.count)))
+            hexchat.command(literal("'" + command + "'").format(name = self.name, target = target, slapobject = self.slapobject, count = self.count, count_ordinal = ordinal(self.count)))
 
 default_slapper = Slapper(DEFAULT_SLAPPER)
 if default_slapper.slapobject == DEFAULT_SLAPPER:
     default_slapper.slapobject = DEFAULT_OBJECT
-
 hexchat.hook_command("SLAP", callback, help = "/slap <nick> [object] slaps nick with object.")
 
 # this imports the Slapper into the hexchat python interface, so that you can interact with it.

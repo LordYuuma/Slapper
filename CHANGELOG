@@ -1,3 +1,6 @@
+2.2:
+    Added {name} (the name of the slapobject, not it's represented value) to the replacable
+    keys, hooray for recursive algorithms based on this.
 2.1:
     Representing preference list as key => value dictionary instead of an array
     Removing hardcoded zero commands (instead "default" is used, when there is no key available)
