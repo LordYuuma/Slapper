@@ -11,7 +11,9 @@ interface for hexchat installed.
 Usage:
 ------
     To slap someone simply type /slap <target> [object]. By default you will then hit your
-    target with a trout. Use the python class for defining more objects to hit someone with.
+    target with said object, which is a trout if not given.
+
+    Use the python class for defining more objects to hit someone with:
 
     Slapper("foo") will create a new Slapper called "foo". foo = Slapper("foo") will do the
     same but assign this to the variable foo.
