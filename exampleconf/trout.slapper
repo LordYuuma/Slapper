@@ -1,0 +1,6 @@
+[slapper]
+object = a large trout
+count = 0
+
+[commands]
+default = me slaps {target} with {object}.
