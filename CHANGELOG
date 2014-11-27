@@ -1,3 +1,13 @@
+3.1:
+    Use ArgumentParser for commandline style slapping.
+    Add possibility to slap more than one person at once.
+    !! IMPORTANT !! {target} has been switched out to {targets}
+    Documented example configuration.
+    Added representation for Slapper object.
+3.0:
+    Use ConfigParser instead of HexChat Preferences to prevent stack smashing.
+    Split into module and plugin.
+    Only allow save commands (/me, /say)
 2.2:
     Added {name} (the name of the slapobject, not it's represented value) to the replacable
     keys, hooray for recursive algorithms based on this.

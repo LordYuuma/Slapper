@@ -17,7 +17,7 @@
 
 import hexchat
 from ast import literal_eval as literal
-from ConfigParser import ConfigParser
+from ConfigParser import ConfigParser, NoOptionError
 from os.path import join
 
 CS_SAFE = ["me","say"]
@@ -25,8 +25,10 @@ CS_SAFE = ["me","say"]
 S_COMMANDS = "commands"
 S_SLAPPER = "slapper"
 
-K_OBJECT = "object"
+K_AND = "and"
 K_COUNT = "count"
+K_OBJECT = "object"
+K_TFMT = "target_format"
 
 P_CFGDIR = "slapper_cfg_dir"
 
@@ -65,12 +67,14 @@ class SelfUpdatingSection(object):
 
     __iter__ = lambda self: ((item[0], item[1]) for item in self.parser.items(self.section))
     __len__ = lambda self: len([item for item in self])
-    __repr__ = lambda self: "{" + ", ".join(["\'" + key + "\' : \'" + value + "\'" for key, value in self]) + "}"
+    __repr__ = lambda self: "{" + ", ".join(["\'{}\' : \'{}\'".format(key, value) for key, value in self]) + "}"
 
 class Slapper(ConfigParser):
 
-    def __getitem__(self, section):
-        return SelfUpdatingSection(section, self, self.file)
+
+    __getitem__ = lambda self, section: SelfUpdatingSection(section, self, self.file)
+    __iter__ = lambda self: (self[section] for section in self.sections())
+    __repr__ = lambda self: "{" + ", ".join(["\'{}\': {}".format(section, repr(self[section])) for section in self.sections()]) + "}"
 
     def check_sanity(self):
         if not self.has_section(S_SLAPPER): self.add_section(S_SLAPPER)
@@ -87,13 +91,29 @@ class Slapper(ConfigParser):
         self.file = join(hexchat.get_pluginpref(P_CFGDIR), self.name + FE_SLAPPER)
         if not self.read(self.file): self.check_sanity()
 
-    def slap(self, target):
+    def parse_targets(self, targets):
+        try:
+            t_fmt = self[S_SLAPPER][K_TFMT]
+        except NoOptionError:
+            t_fmt = "{target}"
+        if len(targets) > 1:
+            last = targets[-1]
+            ts = ", ".join(t_fmt.format(target=t) for t in targets[:-1])
+            try:
+                a = self[S_SLAPPER][K_AND]
+            except NoOptionError:
+                a = "and"
+            return "{} {} {}".format(ts, a, t_fmt.format(target=last))
+        return t_fmt.format(target=targets[0])
+
+
+    def slap(self, targets):
         self.read(self.file) # important! a value may have updated
         count = int(self[S_SLAPPER][K_COUNT]) + 1
         self[S_SLAPPER][K_COUNT] = count
         for command in sorted(self[S_COMMANDS]):
             cmd = literal("'" + command[1] + "'").format(name = self.name,
-                                                         target = target,
+                                                         targets = self.parse_targets(targets),
                                                          object = self[S_SLAPPER][K_OBJECT],
                                                          count = count,
                                                          count_ordinal = ordinal(count))

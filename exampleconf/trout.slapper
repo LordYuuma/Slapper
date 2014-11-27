@@ -1,6 +1,14 @@
 [slapper]
+# Name your object (must be present)
 object = a large trout
 count = 0
+# Format target nick in a special way.
+# You can make it bold, italic, etc. 
+# See the HexChat configuration for the detailed specs.
+# target_format = {target}
+# Do the translation for your slapper in your language ;)
+# and = and
 
 [commands]
-default = me slaps {target} with {object}.
+# At least one command has to be defined for your Slapper to work.
+default = me slaps {targets} with {object}.
