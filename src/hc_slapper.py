@@ -38,7 +38,7 @@ P_CFGDIR = "slapper_cfg_dir"
 # defaults
 D_CFGDIR = "slapper"
 D_CMDKEY = "default"
-D_CMDSLAP = "me slaps \002{target}\002 with {object}."
+D_CMDSLAP = "me slaps {targets} with {object}."
 
 # file endings
 FE_SLAPPER = ".slapper"
