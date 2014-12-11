@@ -1,3 +1,6 @@
+3.1.1:
+    !! SECURITY UPDATE !!
+    Fixed possible code injection
 3.1:
     Use ArgumentParser for commandline style slapping.
     Add possibility to slap more than one person at once.

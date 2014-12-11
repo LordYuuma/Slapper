@@ -20,7 +20,7 @@ from ConfigParser import ConfigParser, NoOptionError
 from os.path import join
 
 # safe commands used within IRC for saying stuff
-CS_SAFE = ["me","say"]
+CS_SAFE = ["me", "say"]
 
 # section names used internally
 S_COMMANDS = "commands"
@@ -47,21 +47,23 @@ FE_SLAPPER = ".slapper"
 if not hexchat.get_pluginpref(P_CFGDIR):
     hexchat.set_pluginpref(P_CFGDIR, join(hexchat.get_info("configdir"), D_CFGDIR))
 
-# from this codegolf: http://codegolf.stackexchange.com/questions/4707/outputting-ordinal-numbers-1st-2nd-3rd#answer-4712
-ordinal = lambda n : "{}{}".format(n, "tsnrhtdd"[(n/10%10!=1)*(n%10<4)*n%10::4])
+# from this codegolf:
+# http://codegolf.stackexchange.com/questions/4707/outputting-ordinal-numbers-1st-2nd-3rd#answer-4712
+ordinal = lambda n: "{}{}".format(n, "tsnrhtdd"[(n / 10 % 10 != 1) * (n % 10 < 4) * n % 10::4])
 
 
 # utility class for ConfigParser, as it does not yet introduce it's own sections.
 # Also it has autoupdate for the file like HexChat Preferences
 class SelfUpdatingSection(object):
 
-    def __init__(self, section, parser, _updatefp = None):
+    def __init__(self, section, parser, _updatefp=None):
         self.section = section
         self.parser = parser
         self._updatefp = _updatefp
 
     def __getitem__(self, option):
-        if self._updatefp: self.parser.read(self._updatefp)
+        if self._updatefp:
+            self.parser.read(self._updatefp)
         return self.parser.get(self.section, option)
 
     def __setitem__(self, option, value):
@@ -74,28 +76,39 @@ class SelfUpdatingSection(object):
     __len__ = lambda self: len([item for item in self])
     __repr__ = lambda self: "{" + ", ".join(["\'{}\' : \'{}\'".format(key, value) for key, value in self]) + "}"
 
+
 class Slapper(ConfigParser):
 
-    __getitem__ = lambda self, section: SelfUpdatingSection(section, self, self.file)
+    __getitem__ = lambda self, section: SelfUpdatingSection(
+        section, self, self.file)
     __iter__ = lambda self: (self[section] for section in self.sections())
-    __repr__ = lambda self: "{" + ", ".join(["\'{}\': {}".format(section, repr(self[section])) for section in self.sections()]) + "}"
+    __repr__ = lambda self: "{" + ", ".join(
+        ["\'{}\': {}".format(section, repr(self[section])) for section in self.sections()]) + "}"
 
     def check_sanity(self):
         # This just checks, if every option, that needs to exist, also exists properly.
-        # This should only be called by the user, if he thinks, he has REALLY messed up.
-        if not self.has_section(S_SLAPPER): self.add_section(S_SLAPPER)
-        if not self.has_option(S_SLAPPER, K_OBJECT): self.set(S_SLAPPER, K_OBJECT, self.name)
-        if not self.has_option(S_SLAPPER, K_COUNT): self.set(S_SLAPPER, K_COUNT, 0)
-        if not self.has_section(S_COMMANDS): self.add_section(S_COMMANDS)
-        if not len(self[S_COMMANDS]): self.set(S_COMMANDS, D_CMDKEY, D_CMDSLAP)
+        # This should only be called by the user, if he thinks, he has REALLY
+        # messed up.
+        if not self.has_section(S_SLAPPER):
+            self.add_section(S_SLAPPER)
+        if not self.has_option(S_SLAPPER, K_OBJECT):
+            self.set(S_SLAPPER, K_OBJECT, self.name)
+        if not self.has_option(S_SLAPPER, K_COUNT):
+            self.set(S_SLAPPER, K_COUNT, 0)
+        if not self.has_section(S_COMMANDS):
+            self.add_section(S_COMMANDS)
+        if not len(self[S_COMMANDS]):
+            self.set(S_COMMANDS, D_CMDKEY, D_CMDSLAP)
         with open(self.file, "w") as fd:
             self.write(fd)
 
     def __init__(self, name):
         ConfigParser.__init__(self)
         self.name = name
-        self.file = join(hexchat.get_pluginpref(P_CFGDIR), self.name + FE_SLAPPER)
-        if not self.read(self.file): self.check_sanity()
+        self.file = join(
+            hexchat.get_pluginpref(P_CFGDIR), self.name + FE_SLAPPER)
+        if not self.read(self.file):
+            self.check_sanity()
 
     def parse_targets(self, targets):
         """
@@ -116,23 +129,24 @@ class Slapper(ConfigParser):
             return "{} {} {}".format(ts, a, t_fmt.format(target=last))
         return t_fmt.format(target=targets[0])
 
-
     def slap(self, targets):
         # update all the settings from the file.
         # this is important, because a new value may have been set and normally, one does direct
         # file editing for a reason.
         self.read(self.file)
         # This increment's the slapper's use count and also sets it again.
-        # Since we use self updating sections, this change is automatically written to the file.
+        # Since we use self updating sections, this change is automatically
+        # written to the file.
         count = int(self[S_SLAPPER][K_COUNT]) + 1
         self[S_SLAPPER][K_COUNT] = count
         # The following formats the command according to the formatting specs defined, and
         # executes those, that are safely usable.
         for command in sorted(self[S_COMMANDS]):
-            cmd = literal("'" + command[1] + "'").format(name = self.name,
-                                                         targets = self.parse_targets(targets),
-                                                         object = self[S_SLAPPER][K_OBJECT],
-                                                         count = count,
-                                                         count_ordinal = ordinal(count))
-            if(cmd.split(" ")[0].lower() in CS_SAFE):
-                hexchat.command(cmd)
+            cmds = literal("'" + command[1] + "'").format(name=self.name,
+                                                          targets=self.parse_targets(targets),
+                                                          object=self[S_SLAPPER][K_OBJECT],
+                                                          count=count,
+                                                          count_ordinal=ordinal(count))
+            for cmd in cmds.split("\n"):
+                if(cmd.split(" ")[0].lower() in CS_SAFE):
+                    hexchat.command(cmd)

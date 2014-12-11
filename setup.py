@@ -5,7 +5,7 @@ setup(name='HexChat Slapper',
       description='Python Distribution Utilities',
       author='Lord Yuuma von Combobreaker',
       author_email='lordyuuma@gmail.com',
-      #url='https://www.python.org/sigs/distutils-sig/',
+      # url='https://www.python.org/sigs/distutils-sig/',
       py_modules=['hc_slapper'],
-      package_dir = {'':'src'},
-     )
+      package_dir={'': 'src'},
+      )
