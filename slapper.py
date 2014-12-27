@@ -77,8 +77,9 @@ class SlapParser(ArgumentParser):
     def __init__(self):
         ArgumentParser.__init__(self, prog="/slap")
         self.add_argument("-s", "--slapper", type=str, default=DEFAULT_SLAPPER,
-                          help="specify the slapper to use")
+                          metavar="slapper", help="specify the slapper to use")
         self.add_argument("-o", "--optional", type=str, action="append", dest="optionals",
+                          metavar="optional",
                           help="also execute optional command defined by slapper")
         self.add_argument("targets", nargs="+", metavar="target",
                           help="a targeted user")
