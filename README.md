@@ -5,6 +5,8 @@ The most extensible IRC /slap you have ever seen
 
 Installing:
 ----------
+This is a plugin for HexChat. You can get HexChat [from it's homepage](http://hexchat.github.io "Hexchat Homepage").
+
 Run `(sudo) python setup.py install` to install the modules needed for this to work. Then move
 `slapper.py` into your hexchat plugin directory.
 
@@ -15,6 +17,7 @@ Features:
 * Defining more than one command to be executed to slap someone.
 * Usage of long names (with spaces) for both slappers and targets (with escaping!)
 * Defining multiple slappers. (Never write more than one plugin)
+* Slappers with optional commands.
 
 Usage:
 ------
@@ -26,15 +29,14 @@ needing help use `/slap --help`.
 
 Slapper Configuration:
 ------
-The following keys are used and configurable for each Slapper:
-* `object`: the name of the object used to slap someone with
-* `count`: the usage count. (This is mostly used for the internal incrementation, but we let you have fun with it)
-* `target_format`: use HexChat codes for formatting the names of your targets.
-* `and`: for localization when targetting multiple users. For example *Foo and Bar* sounds perfectly fine in English, but for the use in a german sentence it should be reworded *Foo und Bar*.
+The slapper configuration file has the following sections:
 
-The commands in the commands section use Python format strings, where the following replacments
-are made:
-* `{object}` is replaced with the object
-* `{targets}` is replaced with the targets you slapped
-* `{count}` is replaced with the usage count of your slapper
-* `{count_ordinal}` is replaced with the (english) ordinal of your usage count
+* `[formatting]` consists of `target_format` to make the names of targets appear bold, italic, whatever... and `and`, which is used when concatenating a list of more than one target to a comma seperated sequence, `and` and the last target.
+* `[replacements]` has key value pairs of replacements, which can be used for commands. Note, that using `target`, `count` and `count_ordinal` may lead to unwanted behaviour, since they are already used internally.
+* `[count]` has `count`, which is the current usage count and possibly commands which are used to show said count.
+* `[commands]` are the IRC commands, which are to be executed, when the slapper slaps (a group of) someone(s).
+* `[optionals]` are additional commands, which the user may call by adding a certain flag to the command he enters.
+
+
+
+When a command uses a replacement, the key has to be embraced with curly brackets like `{this}`.

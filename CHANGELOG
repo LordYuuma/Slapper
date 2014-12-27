@@ -1,3 +1,7 @@
+4.0:
+    Yet again changed the config file structure.
+    Allow definition of own replacements.
+    Allow optional commands, which are executed after normal ones.
 3.1.1:
     !! SECURITY UPDATE !!
     Fixed possible code injection

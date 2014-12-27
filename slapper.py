@@ -15,13 +15,13 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 __module_name__ = "Slapper"
-__module_version__ = "3.1.1"
+__module_version__ = "4.0"
 __module_description__ = "An extensible '/slap' command for the HexChat IRC client."
 __author__ = "LordYuuma"
 
 import hexchat
-from hc_slapper import Slapper, P_CFGDIR, FE_SLAPPER
-from argparse import ArgumentParser, REMAINDER
+from hc_slapper import Slapper, PREF_CFGDIR, FE_SLAPPER
+from argparse import ArgumentParser
 from inspect import cleandoc
 from os import makedirs
 from os.path import isdir, join
@@ -30,12 +30,23 @@ from shlex import split
 DEFAULT_SLAPPER = "trout"
 DEFAULT_CONF = cleandoc(
     """
-    [slapper]
-    object = a large trout
+    [formatting]
+    target_format = {target}
+    and = and
+
+    [replacements]
+    fish = large trout
+    fish2 = sligthly smaller trout
+
+    [count]
     count = 0
+    print_count = me has already slapped {count} persons with his {fish}.
 
     [commands]
-    default = me slaps {targets} with {object}.
+    default = me slaps {targets} with a {fish}.
+
+    [optionals]
+    one_more = me then uses a {fish2} to slap {targets} again.
     """)
 
 
@@ -43,7 +54,7 @@ def check_defaults():
     # This checks for a valid configuration directory in the HexChat preferences.
     # Normally, everything should be fine, because hc_slapper handles this key
     # on its own.
-    confdir = hexchat.get_pluginpref(P_CFGDIR)
+    confdir = hexchat.get_pluginpref(PREF_CFGDIR)
     if not confdir:
         raise Exception("Configuration not available.")
     # Ensure that the directory exists, so we can write our files in it.
@@ -67,6 +78,8 @@ class SlapParser(ArgumentParser):
         ArgumentParser.__init__(self, prog="/slap")
         self.add_argument("-s", "--slapper", type=str, default=DEFAULT_SLAPPER,
                           help="specify the slapper to use")
+        self.add_argument("-o", "--optional", type=str, action="append", dest="optionals",
+                          help="also execute optional command defined by slapper")
         self.add_argument("targets", nargs="+", metavar="target",
                           help="a targeted user")
 
@@ -77,7 +90,9 @@ def callback(word, word_eol, userdata):
     else:
         try:
             slap = SlapParser().parse_args(split(word_eol[1]))
-            Slapper(slap.slapper).slap(slap.targets)
+            # Try reading the next two lines out loud.
+            with Slapper(slap.slapper) as slapper:
+                slapper.slap(slap.targets, optionals=slap.optionals)
         except SystemExit:
             # ArgumentParser raises SystemExit when called with -h/--help
             # this here is just so that the user can actually see the help
