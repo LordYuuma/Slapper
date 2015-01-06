@@ -146,7 +146,10 @@ class Slapper(ConfigParser):
             count = 0
         cmds = literal("'" + command + "'")
         replacements = self[SEC_REPLACEMENTS].to_dict().copy()
-        replacements.update(definitions)
+        try:
+            replacements.update(definitions)
+        except TypeError:
+            pass
         cmds = cmds.format(count=count, count_ordinal=ordinal(count), targets=targets,
                            **replacements)
         for cmd in cmds.split("\n"):
