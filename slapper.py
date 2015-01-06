@@ -15,7 +15,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 __module_name__ = "Slapper"
-__module_version__ = "4.1"
+__module_version__ = "4.2"
 __module_description__ = "An extensible '/slap' command for the HexChat IRC client."
 __author__ = "LordYuuma"
 
@@ -77,6 +77,9 @@ class SlapParser(ArgumentParser):
 
     def __init__(self):
         ArgumentParser.__init__(self, prog="/slap")
+        self.add_argument('-d', '--define', type=str, action="append", dest="definitions",
+                           metavar="key=val",
+                           help="override a replacement definition of the used slapper")
         self.add_argument("-r", "--random", action='store_true', help="use random slapper")
         self.add_argument("-s", "--slapper", type=str, default=DEFAULT_SLAPPER,
                           metavar="slapper", help="specify the slapper to use")
@@ -96,9 +99,11 @@ def callback(word, word_eol, userdata):
         slap = parser.parse_args(split(word_eol[1]))
         if slap.random:
             slap.slapper = choice(get_slappers())
+        if slap.definitions:
+            slap.definitions = {d.split("=")[0]: d.split("=")[1] for d in slap.definitions}
         # Try reading the next two lines out loud.
         with Slapper(slap.slapper) as slapper:
-            slapper.slap(slap.targets, optionals=slap.optionals)
+            slapper.slap(slap.targets, optionals=slap.optionals, definitions=slap.definitions)
     except IndexError:
         parser.print_help()
     except SystemExit:

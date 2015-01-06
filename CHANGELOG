@@ -1,3 +1,5 @@
+4.2:
+    Allow overriding of replacement values.
 4.1:
     No longer dependant on file endings.
     Added random slapping.

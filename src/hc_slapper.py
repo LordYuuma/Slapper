@@ -139,14 +139,16 @@ class Slapper(ConfigParser):
         return t_fmt.format(target=targets[0])
 
     # formats and executes a slap command
-    def _do_slap(self, command, targets=""):
+    def _do_slap(self, command, targets="", definitions={}):
         try:
             count = int(self[SEC_COUNT][KEY_COUNT])
         except (NoSectionError, NoOptionError, ValueError):
             count = 0
         cmds = literal("'" + command + "'")
+        replacements = self[SEC_REPLACEMENTS].to_dict().copy()
+        replacements.update(definitions)
         cmds = cmds.format(count=count, count_ordinal=ordinal(count), targets=targets,
-                           **self[SEC_REPLACEMENTS].to_dict())
+                           **replacements)
         for cmd in cmds.split("\n"):
             if(cmd.split(" ")[0].lower() in CS_SAFE):
                 hexchat.command(cmd)
@@ -161,16 +163,16 @@ class Slapper(ConfigParser):
                 except NoOptionError:
                     pass
 
-    def _optionals(self, targets, optionals):
+    def _optionals(self, targets, optionals, definitions={}):
         if not SEC_OPTIONALS in self.sections():
             return
         for optional in optionals:
             try:
-                self._do_slap(self[SEC_OPTIONALS][optional], targets)
+                self._do_slap(self[SEC_OPTIONALS][optional], targets, definitions)
             except NoOptionError:
                 pass
 
-    def slap(self, targets, optionals=None):
+    def slap(self, targets, optionals=None, definitions={}):
         try:
             count = int(self[SEC_COUNT][KEY_COUNT]) + 1
             self[SEC_COUNT][KEY_COUNT] = str(count)
@@ -178,7 +180,7 @@ class Slapper(ConfigParser):
             pass
         ts = self._format_targets(targets)
         for key, command in sorted(self[SEC_COMMANDS]):
-            self._do_slap(command, ts)
+            self._do_slap(command, ts, definitions)
         if optionals:
-            self._optionals(ts, optionals)
+            self._optionals(ts, optionals, definitions)
         self._print_count()
