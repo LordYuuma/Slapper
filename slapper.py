@@ -101,6 +101,8 @@ def callback(word, word_eol, userdata):
             slap.slapper = choice(get_slappers())
         if slap.definitions:
             slap.definitions = {d.split("=")[0]: d.split("=")[1] for d in slap.definitions}
+        else:
+            slap.definitions = {}
         # Try reading the next two lines out loud.
         with Slapper(slap.slapper) as slapper:
             slapper.slap(slap.targets, optionals=slap.optionals, definitions=slap.definitions)

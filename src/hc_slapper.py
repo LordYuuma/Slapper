@@ -17,6 +17,7 @@
 import hexchat
 from ast import literal_eval as literal
 from ConfigParser import ConfigParser, NoSectionError, NoOptionError
+from itertools import chain
 from os import listdir
 from os.path import basename, join
 
@@ -145,8 +146,7 @@ class Slapper(ConfigParser):
         except (NoSectionError, NoOptionError, ValueError):
             count = 0
         cmds = literal("'" + command + "'")
-        replacements = self[SEC_REPLACEMENTS].to_dict().copy()
-        replacements.update(definitions)
+        replacements = dict(chain(self[SEC_REPLACEMENTS].to_dict(), definitions))
         cmds = cmds.format(count=count, count_ordinal=ordinal(count), targets=targets,
                            **replacements)
         for cmd in cmds.split("\n"):
