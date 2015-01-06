@@ -126,14 +126,14 @@ class Slapper(ConfigParser):
         """
         try:
             t_fmt = self[SEC_FORMATTING][KEY_TARGET_FORMAT]
-        except NoOptionError:
+        except (NoSectionError, NoOptionError):
             t_fmt = "{target}"
         if len(targets) > 1:
             last = targets[-1]
             ts = ", ".join(t_fmt.format(target=t) for t in targets[:-1])
             try:
                 a = self[SEC_FORMATTING][KEY_AND]
-            except NoOptionError:
+            except (NoSectionError, NoOptionError):
                 a = "and"
             return "{} {} {}".format(ts, a, t_fmt.format(target=last))
         return t_fmt.format(target=targets[0])
