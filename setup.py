@@ -1,7 +1,7 @@
 from distutils.core import setup
 
 setup(name='HexChat Slapper',
-      version='4.2',
+      version='4.0',
       description='Extensible /slap for HexChat',
       author='Lord Yuuma von Combobreaker',
       author_email='lordyuuma@gmail.com',
