@@ -1,0 +1,26 @@
+[formatting]
+# make names of targetet persons appear different.
+# binary 2 is bold, for instance
+# see the HexChat docs for a full list of format codes
+target_format = {target}
+# what to use to concatenate multiple targets to a single big one
+and = and
+
+[replacements]
+# list of replacements you want to use later
+fish = large trout
+fish2 = sligthly smaller trout
+
+[count]
+# how often your slapper has been used until now
+count = 0
+# a command, which is executed after the normal and optional ones.
+print_count = me has already slapped {count} persons with his {fish}.
+
+[commands]
+# these are executed in alphabetical order
+default = me slaps {targets} with a {fish}.
+
+[optionals]
+# these are executed in the order the user specified them
+one_more = me then uses a {fish2} to slap {targets} again.

@@ -17,7 +17,8 @@
 import hexchat
 from ast import literal_eval as literal
 from ConfigParser import ConfigParser, NoSectionError, NoOptionError
-from os.path import join
+from os import listdir
+from os.path import basename, join
 
 # safe commands used within IRC for saying stuff
 CS_SAFE = ["me", "say"]
@@ -43,9 +44,6 @@ PREF_CFGDIR = "slapper_cfg_dir"
 DEF_CFGDIR = "slapper"
 DEF_CMDKEY = "default"
 DEF_CMDSLAP = "me slaps {targets} with {object}."
-
-# file endings
-FE_SLAPPER = ".slapper"
 
 # sets plugin preference if not already existing
 if not hexchat.get_pluginpref(PREF_CFGDIR):
@@ -101,18 +99,25 @@ class Slapper(ConfigParser):
             self.set(SEC_COMMANDS, DEF_CMDKEY, DEF_CMDSLAP)
 
     def __enter__(self):
-        if not self.read(self.file):
+        if not self.read(self._file):
             self._check_sanity()
         return self
 
     def __exit__(self, type, value, traceback):
-        with open(self.file, "w") as fd:
+        with open(self._file, "w") as fd:
             self.write(fd)
 
     def __init__(self, name):
         ConfigParser.__init__(self)
         self.name = name
-        self.file = join(hexchat.get_pluginpref(PREF_CFGDIR), self.name + FE_SLAPPER)
+        self._file = self._guess_file()
+
+    def _guess_file(self):
+        pd = hexchat.get_pluginpref(PREF_CFGDIR)
+        for f in listdir(pd):
+            if basename(join(pd,f)) == self.name:
+                return join(pd,f)
+        return join(pd, self.name)
 
     def _format_targets(self, targets):
         """

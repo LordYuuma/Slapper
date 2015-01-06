@@ -15,16 +15,17 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 __module_name__ = "Slapper"
-__module_version__ = "4.0"
+__module_version__ = "4.1"
 __module_description__ = "An extensible '/slap' command for the HexChat IRC client."
 __author__ = "LordYuuma"
 
 import hexchat
-from hc_slapper import Slapper, PREF_CFGDIR, FE_SLAPPER
+from hc_slapper import Slapper, PREF_CFGDIR
 from argparse import ArgumentParser
 from inspect import cleandoc
-from os import makedirs
-from os.path import isdir, join
+from os import listdir, makedirs
+from os.path import dirname, isdir, islink, join, realpath
+from random import choice
 from shlex import split
 
 DEFAULT_SLAPPER = "trout"
@@ -65,10 +66,10 @@ def check_defaults():
     # plugin head and therefore helpful comments can be added in the plugin
     # itself, rather than in the module, where just correctness is needed.
     try:
-        with open(join(confdir, DEFAULT_SLAPPER + FE_SLAPPER)) as fd:
+        with open(join(confdir, DEFAULT_SLAPPER)) as fd:
             pass
     except IOError:
-        with open(join(confdir, DEFAULT_SLAPPER + FE_SLAPPER), "w") as fd:
+        with open(join(confdir, DEFAULT_SLAPPER), "w") as fd:
             fd.write(DEFAULT_CONF)
 
 
@@ -76,6 +77,7 @@ class SlapParser(ArgumentParser):
 
     def __init__(self):
         ArgumentParser.__init__(self, prog="/slap")
+        self.add_argument("-r", "--random", action='store_true', help="use random slapper")
         self.add_argument("-s", "--slapper", type=str, default=DEFAULT_SLAPPER,
                           metavar="slapper", help="specify the slapper to use")
         self.add_argument("-o", "--optional", type=str, action="append", dest="optionals",
@@ -84,20 +86,25 @@ class SlapParser(ArgumentParser):
         self.add_argument("targets", nargs="+", metavar="target",
                           help="a targeted user")
 
+def get_slappers():
+    pd = hexchat.get_pluginpref(PREF_CFGDIR)
+    return [f for f in listdir(pd) if not isdir(f) and not (islink(join(pd,f)) and dirname(realpath(join(pd,f))) == pd)]
 
 def callback(word, word_eol, userdata):
-    if len(word) < 2:
-        print("You slapped no one.")
-    else:
-        try:
-            slap = SlapParser().parse_args(split(word_eol[1]))
-            # Try reading the next two lines out loud.
-            with Slapper(slap.slapper) as slapper:
-                slapper.slap(slap.targets, optionals=slap.optionals)
-        except SystemExit:
-            # ArgumentParser raises SystemExit when called with -h/--help
-            # this here is just so that the user can actually see the help
-            pass
+    parser = SlapParser()
+    try:
+        slap = parser.parse_args(split(word_eol[1]))
+        if slap.random:
+            slap.slapper = choice(get_slappers())
+        # Try reading the next two lines out loud.
+        with Slapper(slap.slapper) as slapper:
+            slapper.slap(slap.targets, optionals=slap.optionals)
+    except IndexError:
+        parser.print_help()
+    except SystemExit:
+        # ArgumentParser raises SystemExit when called with -h/--help
+        # this here is just so that the user can actually see the help
+        pass
     return hexchat.EAT_ALL
 
 try:
