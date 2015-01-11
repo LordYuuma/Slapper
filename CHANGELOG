@@ -1,3 +1,5 @@
+4.2.1:
+    Allow list of slappers to choose from, when using random slapping.
 4.2:
     Allow overriding of replacement values.
 4.1:
