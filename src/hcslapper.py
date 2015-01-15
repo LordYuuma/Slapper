@@ -29,13 +29,15 @@ SEC_COUNT = "count"
 SEC_FORMATTING = "formatting"
 SEC_OPTIONALS = "optionals"
 SEC_REPLACEMENTS = "replacements"
+SEC_SETTINGS = "settings"
 
 # key names used internally
 KEY_AND = "and"
 KEY_COUNT = "count"
 KEY_OBJECT = "object"
-KEY_TARGET_FORMAT = "target_format"
-KEY_PRINT_COUNT = "print_count"
+KEY_RECURSION = "recursion depth"
+KEY_TARGET_FORMAT = "target format"
+KEY_PRINT_COUNT = "print count"
 
 # preference keys
 PREF_CFGDIR = "slapper_cfg_dir"
@@ -44,10 +46,6 @@ PREF_CFGDIR = "slapper_cfg_dir"
 DEF_CFGDIR = "slapper"
 DEF_CMDKEY = "default"
 DEF_CMDSLAP = "me slaps {targets} with {object}."
-
-# sets plugin preference if not already existing
-if not hexchat.get_pluginpref(PREF_CFGDIR):
-    hexchat.set_pluginpref(PREF_CFGDIR, join(hexchat.get_info("configdir"), DEF_CFGDIR))
 
 # from this codegolf:
 # http://codegolf.stackexchange.com/questions/4707/outputting-ordinal-numbers-1st-2nd-3rd#answer-4712
@@ -112,18 +110,30 @@ class Slapper(ConfigParser):
         self.name = name
         self._file = self._guess_file()
 
+    @staticmethod
+    def get_slapperdir():
+        """
+        Returns the directory used for slapper configuration.
+        Args:
+            None
+        Returns:
+            The slapper configuration directory
+        Raises:
+            None
+        """
+        d = hexchat.get_pluginpref(PREF_CFGDIR)
+        return d if d else join(hexchat.get_info("configdir"), DEF_CFGDIR)
+
     def _guess_file(self):
-        pd = hexchat.get_pluginpref(PREF_CFGDIR)
+        pd = Slapper.get_slapperdir()
         for f in listdir(pd):
             if basename(join(pd,f)) == self.name:
                 return join(pd,f)
         return join(pd, self.name)
 
+    # Takes a list of targets and formats them according to the slapper's formatting options
+    # to return a string, that looks like something you can write as part of a sentence.
     def _format_targets(self, targets):
-        """
-        Takes a list of targets and formats them according to the slapper's formatting options
-        to return a string, that looks like something you can write as part of a sentence.
-        """
         try:
             t_fmt = self[SEC_FORMATTING][KEY_TARGET_FORMAT]
         except (NoSectionError, NoOptionError):
@@ -144,24 +154,26 @@ class Slapper(ConfigParser):
             count = int(self[SEC_COUNT][KEY_COUNT])
         except (NoSectionError, NoOptionError, ValueError):
             count = 0
+        try:
+            maxtries = int(self[SEC_SETTINGS][KEY_RECURSION])
+        except (NoSectionError, NoOptionError, ValueError):
+            maxtries = 8
         cmds = literal("'" + command + "'")
         replacements = self[SEC_REPLACEMENTS].to_dict().copy()
         replacements.update(definitions)
-        cmds = cmds.format(count=count, count_ordinal=ordinal(count), targets=targets,
-                           **replacements)
+        replacements.update({"count": count, "count ordinal" : ordinal(count),
+                             "targets": targets})
+        tmps = None
+        tries = 0
+        while not cmds == tmps:
+            tmps = cmds
+            cmds = tmps.format(**replacements)
+            tries += 1
+            if tries >= maxtries:
+                raise ValueError("Could not format \"{}\".".format(command))
         for cmd in cmds.split("\n"):
             if(cmd.split(" ")[0].lower() in CS_SAFE):
                 hexchat.command(cmd)
-
-    def _print_count(self):
-        if not SEC_COUNT in self.sections():
-            return
-        for key, command in sorted(self[SEC_COUNT]):
-            if not key == KEY_COUNT:
-                try:
-                    self._do_slap(command)
-                except NoOptionError:
-                    pass
 
     def _optionals(self, targets, optionals, definitions={}):
         if not SEC_OPTIONALS in self.sections():
@@ -173,6 +185,19 @@ class Slapper(ConfigParser):
                 pass
 
     def slap(self, targets, optionals=None, definitions={}):
+        """
+        Slap all targets.
+
+        Args:
+            targets: a list of strings (hopefully target names)
+            optionals: a list of optional slap commands
+            definitions: a key value map of overridden values by the user
+        Returns:
+            None
+        Raises:
+            ValueError: a misconfiguration causes a format string to not
+                        be formattable
+        """
         try:
             count = int(self[SEC_COUNT][KEY_COUNT]) + 1
             self[SEC_COUNT][KEY_COUNT] = str(count)
@@ -183,4 +208,3 @@ class Slapper(ConfigParser):
             self._do_slap(command, ts, definitions)
         if optionals:
             self._optionals(ts, optionals, definitions)
-        self._print_count()

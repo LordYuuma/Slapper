@@ -1,3 +1,9 @@
+4.3:
+    Allow recursive definition of replacements.
+    Changed underlines in configuration keys to spaces.
+    No more need to import key definitions from Slapper module.
+    Added docstrings to public methods.
+    Renamed the module for easier importing.
 4.2.1:
     Allow list of slappers to choose from, when using random slapping.
 4.2:

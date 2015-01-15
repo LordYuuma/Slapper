@@ -1,14 +1,13 @@
 Slapper
 =======
 
-The most extensible IRC /slap you have ever seen
+The most extensible IRC `/SLAP` you have ever seen.
 
 Installing:
 ----------
 This is a plugin for HexChat. You can get HexChat [from it's homepage](http://hexchat.github.io "Hexchat Homepage").
 
-Run `(sudo) python setup.py install` to install the modules needed for this to work. Then move
-`slapper.py` into your hexchat plugin directory.
+Slapper consists of two components: the `hc_slapper` python module, which is installed via `setup.py` and the `slapper.py` hexchat plugin, which is best stored in the user's hexchat plugin directory. You also install it system wide, but we do not recommend that for multiple reasons (autoloading, configuration of said autoloading in multi-user systems, etc. etc.)
 
 Features:
 ------
@@ -21,21 +20,32 @@ Features:
 
 Usage:
 ------
-To slap one (or multiple) target(s) use `/slap <target(s)>`. All of your targets will then be
-slapped (one slap statement for everyone to prevent spamming). To specify a slapper, that is
-not a trout, use `/slap -s <slapper> <target(s)>`. Slapper and targets are seperated by spaces,
-but you can quote them or escape the spaces to specify a longer name. Whenever you feel like
-needing help use `/slap --help`.
+### Syntax
+`/SLAP [-h] [-c slapper [slapper ...]] [-d key=val] [-r] [-s slapper] [-o optional] target [target ...]`
+### Positional Arguments
+`target` is a target. You can have as many as you want.
+### Optional Arguments
+`-c|--choice` defines a list of slappers (in your slapper directory) to choose from randomly. Have another option or add `--` before the target list to not confuse the parser ;)
+
+`-d|--definition` can be used to define a key value pair. If key is used in a slapper command, it will be replaced with value.
+
+`-r|--random` same as choice, but with all slappers in your slapper directory.
+
+`-s|--slapper` uses a specific slapper.
+
+`-o|--optional` tells slapper to execute a command, it normally does not use.
+
+For optional commands and definitions, please refer to the slapper configuration.
 
 Slapper Configuration:
 ------
-The slapper configuration file has the following sections:
+Slapper configuration files are by default stored in the `slapper` subfolder of your HexChat configuration folder. This can be changed by changing `slapper_cfg_dir` in your `addon_python.conf` to a different directory. The slapper configuration file has the following sections:
 
-* `[formatting]` consists of `target_format` to make the names of targets appear bold, italic, whatever... and `and`, which is used when concatenating a list of more than one target to a comma seperated sequence, `and` and the last target.
-* `[replacements]` has key value pairs of replacements, which can be used for commands. Note, that using `target`, `count` and `count_ordinal` may lead to unwanted behaviour, since they are already used internally.
-* `[count]` has `count`, which is the current usage count and possibly commands which are used to show said count.
+* `[formatting]` consists of `target format` to make the names of targets appear bold, italic, whatever... and `and`, which is used when concatenating a list of more than one target to a comma seperated sequence, `and` and the last target.
+* `[replacements]` has key value pairs of replacements, which can be used for commands. Note, that using `target`, `count` and `count ordinal` may lead to unwanted behaviour, since they are already used internally.
+* `[count]` has `count`, which is the current usage count.
 * `[commands]` are the IRC commands, which are to be executed, when the slapper slaps (a group of) someone(s).
-* `[optionals]` are additional commands, which the user may call by adding a certain flag to the command he enters.
+* `[optionals]` are additional commands, which the user may call by adding a certain flag to the command he enters. See usage.
 
 
 

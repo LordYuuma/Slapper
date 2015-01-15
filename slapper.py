@@ -15,12 +15,12 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 __module_name__ = "Slapper"
-__module_version__ = "4.2.1"
+__module_version__ = "4.3"
 __module_description__ = "An extensible '/slap' command for the HexChat IRC client."
 __author__ = "LordYuuma"
 
 import hexchat
-from hc_slapper import Slapper, PREF_CFGDIR
+from hcslapper import Slapper
 from argparse import ArgumentParser
 from inspect import cleandoc
 from os import listdir, makedirs
@@ -52,12 +52,7 @@ DEFAULT_CONF = cleandoc(
 
 
 def check_defaults():
-    # This checks for a valid configuration directory in the HexChat preferences.
-    # Normally, everything should be fine, because hc_slapper handles this key
-    # on its own.
-    confdir = hexchat.get_pluginpref(PREF_CFGDIR)
-    if not confdir:
-        raise Exception("Configuration not available.")
+    confdir = Slapper.get_slapperdir()
     # Ensure that the directory exists, so we can write our files in it.
     if not isdir(confdir):
         makedirs(confdir)
@@ -92,7 +87,7 @@ class SlapParser(ArgumentParser):
                           help="a targeted user")
 
 def get_slappers():
-    pd = hexchat.get_pluginpref(PREF_CFGDIR)
+    pd = Slapper.get_slapperdir()
     return [f for f in listdir(pd) if not isdir(f) and not (islink(join(pd,f)) and dirname(realpath(join(pd,f))) == pd)]
 
 def callback(word, word_eol, userdata):
