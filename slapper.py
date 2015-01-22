@@ -32,7 +32,7 @@ DEFAULT_SLAPPER = "trout"
 DEFAULT_CONF = cleandoc(
     """
     [formatting]
-    target_format = {target}
+    target format = {target}
     and = and
 
     [replacements]
@@ -41,13 +41,13 @@ DEFAULT_CONF = cleandoc(
 
     [count]
     count = 0
-    print_count = me has already slapped {count} persons with his {fish}.
 
     [commands]
     default = me slaps {targets} with a {fish}.
 
     [optionals]
-    one_more = me then uses a {fish2} to slap {targets} again.
+    one more = me then uses a {fish2} to slap {targets} again.
+    print count = me has already slapped {count} persons with his {fish}.
     """)
 
 

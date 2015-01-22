@@ -2,7 +2,7 @@
 # make names of targetet persons appear different.
 # binary 2 is bold, for instance
 # see the HexChat docs for a full list of format codes
-target_format = {target}
+target format = {target}
 # what to use to concatenate multiple targets to a single big one
 and = and
 
@@ -23,4 +23,5 @@ default = me slaps {targets} with a {fish}.
 
 [optionals]
 # these are executed in the order the user specified them
-one_more = me then uses a {fish2} to slap {targets} again.
+one more = me then uses a {fish2} to slap {targets} again.
+print count = me has already slapped {count} persons with his {fish}.
