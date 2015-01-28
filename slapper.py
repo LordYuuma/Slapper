@@ -74,8 +74,8 @@ class SlapParser(ArgumentParser):
         ArgumentParser.__init__(self, prog="/slap")
         self.add_argument('-c', '--choice', type=str, nargs='+', dest="choices",
                            metavar="slapper", help="define choices for random. implies random")
-        self.add_argument('-d', '--define', type=str, action="append", dest="definitions",
-                           metavar="key=val",
+        self.add_argument('-d', '--define', type=str, nargs=2, action="append",
+                           dest="definitions", metavar=("key", "value"),
                            help="override a replacement definition of the used slapper")
         self.add_argument("-r", "--random", action='store_true', help="use random slapper")
         self.add_argument("-s", "--slapper", type=str, default=DEFAULT_SLAPPER,
@@ -98,10 +98,6 @@ def callback(word, word_eol, userdata):
             if not slap.choices:
                 slap.choices = get_slappers()
             slap.slapper = choice(slap.choices)
-        if slap.definitions:
-            slap.definitions = {d.split("=")[0]: d.split("=")[1] for d in slap.definitions}
-        else:
-            slap.definitions = {}
         # Try reading the next two lines out loud.
         with Slapper(slap.slapper) as slapper:
             slapper.slap(slap.targets, optionals=slap.optionals, definitions=slap.definitions)
