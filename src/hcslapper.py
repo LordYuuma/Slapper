@@ -160,7 +160,8 @@ class Slapper(ConfigParser):
             maxtries = 8
         cmds = literal("'" + command + "'")
         replacements = self[SEC_REPLACEMENTS].to_dict().copy()
-        replacements.update(definitions)
+        if definitions:
+            replacements.update(definitions)
         replacements.update({"count": count, "count ordinal" : ordinal(count),
                              "targets": targets})
         tmps = None
