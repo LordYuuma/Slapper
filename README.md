@@ -21,7 +21,7 @@ Features:
 Usage:
 ------
 ### Syntax
-`/SLAP [-h] [-c slapper [slapper ...]] [-d key=val] [-r] [-s slapper] [-o optional] target [target ...]`
+`/SLAP [-h] [-c slapper [slapper ...]] [-d key value] [-r] [-s slapper] [-o optional] target [target ...]`
 ### Positional Arguments
 `target` is a target. You can have as many as you want.
 ### Optional Arguments
