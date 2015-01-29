@@ -42,7 +42,7 @@ Slapper Configuration:
 Slapper configuration files are by default stored in the `slapper` subfolder of your HexChat configuration folder. This can be changed by changing `slapper_cfg_dir` in your `addon_python.conf` to a different directory. The slapper configuration file has the following sections:
 
 * `[formatting]` consists of `target format` to make the names of targets appear bold, italic, whatever... and `and`, which is used when concatenating a list of more than one target to a comma seperated sequence, `and` and the last target.
-* `[replacements]` has key value pairs of replacements, which can be used for commands. Note, that using `target`, `count` and `count ordinal` may lead to unwanted behaviour, since they are already used internally.
+* `[replacements]` has key value pairs of replacements, which can be used for commands.
 * `[count]` has `count`, which is the current usage count.
 * `[commands]` are the IRC commands, which are to be executed, when the slapper slaps (a group of) someone(s).
 * `[optionals]` are additional commands, which the user may call by adding a certain flag to the command he enters. See usage.
@@ -50,3 +50,12 @@ Slapper configuration files are by default stored in the `slapper` subfolder of 
 
 
 When a command uses a replacement, the key has to be embraced with curly brackets like `{this}`.
+
+Internally used replacements:
+-----
+The following replacements are made internally. You can not override their values.
+
+* `{targets}`: the targets for slapping. This should be used in your commands, if you want to have the target names actually appear.
+* `{count}`: how often the slapper has been used.
+* `{count ordinal}`: the same, but this time with english ordinals.
+* `{nick}`: your nickname (might be handy sometimes).
