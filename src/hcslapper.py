@@ -158,12 +158,16 @@ class Slapper(ConfigParser):
             maxtries = int(self[SEC_SETTINGS][KEY_RECURSION])
         except (NoSectionError, NoOptionError, ValueError):
             maxtries = 8
-        cmds = literal("'" + command + "'")
-        replacements = self[SEC_REPLACEMENTS].to_dict().copy()
+        cmds = literal("'" + command.replace("\'", "\\\'") + "'")
+        replacements = {}
+        try:
+            replacements.update(self[SEC_REPLACEMENTS].to_dict())
+        except (NoSectionError, NoOptionError):
+            pass
         if definitions:
             replacements.update(definitions)
         replacements.update({"count": count, "count ordinal" : ordinal(count),
-                             "targets": targets})
+                             "targets": targets, "nick": hexchat.get_info("nick")})
         tmps = None
         tries = 0
         while not cmds == tmps:
