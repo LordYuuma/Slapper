@@ -7,7 +7,7 @@ Installing:
 ----------
 This is a plugin for HexChat. You can get HexChat [from it's homepage](http://hexchat.github.io "Hexchat Homepage").
 
-Slapper consists of two components: the `hc_slapper` python module, which is installed via `setup.py` and the `slapper.py` hexchat plugin, which is best stored in the user's hexchat plugin directory. You also install it system wide, but we do not recommend that for multiple reasons (autoloading, configuration of said autoloading in multi-user systems, etc. etc.)
+Slapper consists of two components: the `hc_slapper` python module, which is installed via `setup.py` and the `slapper.py` hexchat plugin, which is best stored in the user's hexchat plugin directory. You can also install it system wide, but we do not recommend that for multiple reasons (autoloading, configuration of said autoloading in multi-user systems, etc. etc.)
 
 Features:
 ------
