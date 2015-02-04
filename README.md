@@ -7,7 +7,7 @@ Installing:
 ----------
 This is a plugin for HexChat. You can get HexChat [from it's homepage](http://hexchat.github.io "Hexchat Homepage").
 
-Slapper consists of two components: the `hc_slapper` python module, which is installed via `setup.py` and the `slapper.py` hexchat plugin, which is best stored in the user's hexchat plugin directory. You can also install it system wide, but we do not recommend that for multiple reasons (autoloading, configuration of said autoloading in multi-user systems, etc. etc.)
+Slapper consists of two components: the `slapper` python module, which is installed via `setup.py` and the plugins in the plugins folder, which utilize it. (right now it's HexChat only.)
 
 Features:
 ------
@@ -39,7 +39,7 @@ For optional commands and definitions, please refer to the slapper configuration
 
 Slapper Configuration:
 ------
-Slapper configuration files are by default stored in the `slapper` subfolder of your HexChat configuration folder. This can be changed by changing `slapper_cfg_dir` in your `addon_python.conf` to a different directory. The slapper configuration file has the following sections:
+Slapper configuration files are by default stored in the `slapper` subfolder of your client's configuration folder. For the HexChat implementation this can be changed by changing `slapper_cfg_dir` in your `addon_python.conf` to a different directory. The slapper configuration file has the following sections:
 
 * `[formatting]` consists of `target format` to make the names of targets appear bold, italic, whatever... and `and`, which is used when concatenating a list of more than one target to a comma seperated sequence, `and` and the last target.
 * `[replacements]` has key value pairs of replacements, which can be used for commands.
