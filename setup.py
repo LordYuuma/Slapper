@@ -1,10 +1,10 @@
 from distutils.core import setup
 
-setup(name='HexChat Slapper',
-      version='4.3',
+setup(name='Slapper',
+      version='5.0',
       description='Extensible /slap for HexChat',
       author='Lord Yuuma von Combobreaker',
       author_email='lordyuuma@gmail.com',
-      py_modules=['hcslapper'],
+      py_modules=['slapper'],
       package_dir={'': 'src'},
       )
