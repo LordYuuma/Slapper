@@ -1,2 +1,2 @@
-customizable count offset and stepsize. -- postponed indefinitely due to stack smashing
-fix import issue after reloading when code has changed
+Implementations in other clients.
+Python3 support.
