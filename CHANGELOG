@@ -1,3 +1,9 @@
+5.0:
+    Moving all HexChat functionality into plugin itself.
+    Make module fully HexChat agnostic and functional only.
+    Allow easier subclassing of Slapper.
+    Some renaming...
+    Moved plugins to new plugins folder.
 4.3:
     Allow recursive definition of replacements.
     Changed underlines in configuration keys to spaces.
