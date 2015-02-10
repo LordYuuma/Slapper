@@ -15,12 +15,12 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 __module_name__ = "Slapper"
-__module_version__ = "5.0"
+__module_version__ = "5.1"
 __module_description__ = "An extensible '/slap' command for the HexChat IRC client."
 __author__ = "LordYuuma"
 
 import hexchat
-from slapper import Slapper
+from slapper import Slapper, NoSectionError, NoOptionError, SEC_COUNT, KEY_COUNT
 from argparse import ArgumentParser
 from inspect import cleandoc
 from os import listdir, makedirs
@@ -59,6 +59,7 @@ class HexChatSlapper(Slapper):
     def __init__(self, name):
         _file = HexChatSlapper._guess_file(name)
         Slapper.__init__(self, _file)
+        self.test = False
 
     @staticmethod
     def get_slapperdir():
@@ -88,8 +89,19 @@ class HexChatSlapper(Slapper):
         return replacements
 
     def exec_command(self, cmd):
-        if(cmd.split(" ")[0].lower() in ["me", "say"]):
+        if self.test:
+            Slapper.exec_command(self, cmd)
+        elif(cmd.split(" ")[0].lower() in ["me", "say"]):
             hexchat.command(cmd)
+
+    def slap(self, targets, optionals=None, definitions=None):
+        Slapper.slap(self, targets, optionals, definitions)
+        if self.test:
+            try:
+                count = int(self[SEC_COUNT][KEY_COUNT]) - 1
+                self[SEC_COUNT][KEY_COUNT] = str(count)
+            except (NoSectionError, NoOptionError):
+                pass
 
 
 def check_defaults():
@@ -124,6 +136,9 @@ class SlapParser(ArgumentParser):
         self.add_argument("-o", "--optional", type=str, action="append", dest="optionals",
                           metavar="optional",
                           help="also execute optional command defined by slapper")
+        self.add_argument("-t", "--test", action="store_true",
+                          help="show the commands instead of executing them.\n" +
+                               "will increase usage count")
         self.add_argument("targets", nargs="+", metavar="target",
                           help="a targeted user")
 
@@ -141,8 +156,8 @@ def callback(word, word_eol, userdata):
             if not slap.choices:
                 slap.choices = get_slappers()
             slap.slapper = choice(slap.choices)
-        # Try reading the next two lines out loud.
         with HexChatSlapper(slap.slapper) as slapper:
+            slapper.test = slap.test
             slapper.slap(slap.targets, optionals=slap.optionals, definitions=slap.definitions)
     except IndexError:
         parser.print_help()
