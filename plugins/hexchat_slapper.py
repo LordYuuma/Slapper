@@ -137,8 +137,7 @@ class SlapParser(ArgumentParser):
                           metavar="optional",
                           help="also execute optional command defined by slapper")
         self.add_argument("-t", "--test", action="store_true",
-                          help="show the commands instead of executing them.\n" +
-                               "will increase usage count")
+                          help="show the commands instead of executing them.")
         self.add_argument("targets", nargs="+", metavar="target",
                           help="a targeted user")
 
@@ -167,13 +166,17 @@ def callback(word, word_eol, userdata):
         pass
     return hexchat.EAT_ALL
 
+def unload(userdata):
+    print("{module} {version} unloaded.".format(module=__module_name__,
+                                                version=__module_version__))
+
 try:
     check_defaults()
     hexchat.hook_command("SLAP", callback,
-                         help="usage: /slap [-h] [-s SLAPPER] target [target ...]\n" +
-                              "use /slap --help for a full help")
+                         help=SlapParser().format_help())
     print("{module} {version} by {author} loaded.".format(module=__module_name__,
                                                           version=__module_version__,
                                                           author=__author__))
+    hexchat.hook_unload(unload)
 except Exception:
     print("Slapper could not be loaded.")
