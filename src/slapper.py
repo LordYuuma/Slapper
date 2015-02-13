@@ -76,10 +76,10 @@ class Slapper(ConfigParser):
         if not self.has_section(SEC_REPLACEMENTS):
             self.add_section(SEC_REPLACEMENTS)
         if not self.has_option(SEC_REPLACEMENTS, KEY_OBJECT):
-            self.set(SEC_SLAPPER, KEY_OBJECT, self.name)
-        if not self.has_section(SEC_USAGE):
-            self.add_section(SEC_USAGE)
-        if not self.has_option(SEC_USAGE, KEY_COUNT):
+            self.set(SEC_REPLACEMENTS, KEY_OBJECT, self.name)
+        if not self.has_section(SEC_COUNT):
+            self.add_section(SEC_COUNT)
+        if not self.has_option(SEC_COUNT, KEY_COUNT):
             self.set(SEC_SLAPPER, KEY_COUNT, 0)
         if not self.has_section(SEC_COMMANDS):
             self.add_section(SEC_COMMANDS)
