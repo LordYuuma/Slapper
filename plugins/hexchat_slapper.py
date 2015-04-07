@@ -21,12 +21,13 @@ __author__ = "LordYuuma"
 
 import hexchat
 from slapper import Slapper, NoSectionError, NoOptionError, SEC_COUNT, KEY_COUNT
-from argparse import ArgumentParser
+from argparse import ArgumentParser, REMAINDER
 from inspect import cleandoc
 from os import listdir, makedirs
 from os.path import basename, dirname, isdir, islink, join, realpath
 from random import choice
 from shlex import split
+from sys import stdout
 
 DEFAULT_SLAPPER = "trout"
 DEFAULT_CONF = cleandoc(
@@ -100,7 +101,7 @@ class HexChatSlapper(Slapper):
             try:
                 count = int(self[SEC_COUNT][KEY_COUNT]) - 1
                 self[SEC_COUNT][KEY_COUNT] = str(count)
-            except (NoSectionError, NoOptionError):
+            except (KeyError, NoSectionError, NoOptionError):
                 pass
 
 
@@ -130,6 +131,8 @@ class SlapParser(ArgumentParser):
         self.add_argument('-d', '--define', type=str, nargs=2, action="append",
                           dest="definitions", metavar=("key", "value"),
                           help="override a replacement definition of the used slapper")
+        self.add_argument("--print-config", action="store_true",
+                          help="print the configuration of a slapper")
         self.add_argument("-r", "--random", action='store_true', help="use random slapper")
         self.add_argument("-s", "--slapper", type=str, default=DEFAULT_SLAPPER,
                           metavar="slapper", help="specify the slapper to use")
@@ -138,12 +141,12 @@ class SlapParser(ArgumentParser):
                           help="also execute optional command defined by slapper")
         self.add_argument("-t", "--test", action="store_true",
                           help="show the commands instead of executing them.")
-        self.add_argument("targets", nargs="+", metavar="target",
+        self.add_argument("targets", nargs=REMAINDER, metavar="target",
                           help="a targeted user")
 
 
 def get_slappers():
-    pd = Slapper.get_slapperdir()
+    pd = HexChatSlapper.get_slapperdir()
     return [f for f in listdir(pd) if not isdir(f) and not (islink(join(pd, f)) and dirname(realpath(join(pd, f))) == pd)]
 
 
@@ -157,9 +160,14 @@ def callback(word, word_eol, userdata):
             slap.slapper = choice(slap.choices)
         with HexChatSlapper(slap.slapper) as slapper:
             slapper.test = slap.test
-            slapper.slap(slap.targets, optionals=slap.optionals, definitions=slap.definitions)
+            if slap.print_config:
+                slapper.write(stdout)
+            else:
+                slapper.slap(slap.targets, optionals=slap.optionals, definitions=slap.definitions)
     except IndexError:
         parser.print_help()
+        if not slap.print_config and not slap.targets:
+            print("Error: You need at least one target.")
     except SystemExit:
         # ArgumentParser raises SystemExit when called with -h/--help
         # this here is just so that the user can actually see the help
