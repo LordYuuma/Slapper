@@ -14,8 +14,16 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
+from sys import version_info as py
+
 from ast import literal_eval as literal
-from ConfigParser import ConfigParser, NoSectionError, NoOptionError
+
+if py.major == 2:
+    from ConfigParser import ConfigParser, NoSectionError, NoOptionError
+elif py.major == 3:
+    from configparser import ConfigParser, NoSectionError, NoOptionError
+else:
+    raise InputError("Python version could not be detected.")
 
 # section names used internally
 SEC_COMMANDS = "commands"
@@ -44,30 +52,37 @@ ordinal = lambda n: "{}{}".format(n, "tsnrhtdd"[(n / 10 % 10 != 1) * (n % 10 < 4
 
 # utility class for ConfigParser, as it does not yet introduce it's own sections.
 # Also it has autoupdate for the file like HexChat Preferences
-class ConfigParserSection(object):
 
-    def __init__(self, parser, section):
-        self.parser = parser
-        self.section = section
 
-    def __getitem__(self, option):
-        return self.parser.get(self.section, option)
+if py.major == 2:
+##### PYTHON 2 #####
+    class ConfigParserSection(object):
 
-    def __setitem__(self, option, value):
-        self.parser.set(self.section, option, value)
+        def __init__(self, parser, section):
+            self.parser = parser
+            self.section = section
 
-    __iter__ = lambda self: ((item[0], item[1]) for item in self.parser.items(self.section))
-    __len__ = lambda self: len([item for item in self])
-    __repr__ = lambda self: "{" + ", ".join(["\'{}\' : \'{}\'".format(key, value) for key, value in self]) + "}"
+        def __getitem__(self, option):
+            return self.parser.get(self.section, option)
 
-    to_dict = lambda self: {item[0]: item[1] for item in self.parser.items(self.section)}
+        def __setitem__(self, option, value):
+            self.parser.set(self.section, option, value)
 
+        __iter__ = lambda self: ((item[0], item[1]) for item in self.parser.items(self.section))
+        __len__ = lambda self: len([item for item in self])
+        __repr__ = lambda self: "{" + ", ".join(["\'{}\' : \'{}\'".format(key, value) for key, value in self]) + "}"
+
+        to_dict = lambda self: {item[0]: item[1] for item in self.parser.items(self.section)}
+##### PYTHON 2 #####
 
 class Slapper(ConfigParser):
 
-    __getitem__ = lambda self, section: ConfigParserSection(self, section)
-    __iter__ = lambda self: (self[section] for section in self.sections())
-    __repr__ = lambda self: "{" + ", ".join(["\'{}\': {}".format(section, repr(self[section])) for section in self.sections()]) + "}"
+    if py.major == 2:
+    ##### PYTHON 2 #####
+        __getitem__ = lambda self, section: ConfigParserSection(self, section)
+        __iter__ = lambda self: (self[section] for section in self.sections())
+        __repr__ = lambda self: "{" + ", ".join(["\'{}\': {}".format(section, repr(self[section])) for section in self.sections()]) + "}"
+    ##### PYTHON 2 #####
 
     def _check_sanity(self):
         # This just checks, if every option, that needs to exist, also exists properly.
@@ -116,15 +131,22 @@ class Slapper(ConfigParser):
             None
         """
         replacements = {}
-        try:
-            replacements.update(self[SEC_REPLACEMENTS].to_dict())
-        except (NoSectionError, NoOptionError):
-            pass
+        if py.major == 2:
+        ##### PYTHON 2 #####
+            try:
+                replacements.update(self[SEC_REPLACEMENTS].to_dict())
+            except (NoSectionError, NoOptionError):
+                pass
+        ##### PYTHON 2 #####
+        if py.major == 3:
+        ##### PYTHON 3 #####
+            replacements.update({key: self[SEC_REPLACEMENTS][key] for key in self[SEC_REPLACEMENTS]})
+        ##### PYTHON 3 #####
         if definitions:
             replacements.update(definitions)
         try:
             count = int(self[SEC_COUNT][KEY_COUNT])
-        except (NoSectionError, NoOptionError, ValueError):
+        except (KeyError, NoSectionError, NoOptionError, ValueError):
             count = 0
         replacements.update({"count": count, "count ordinal": ordinal(count),
                              "targets": targets})
@@ -135,14 +157,14 @@ class Slapper(ConfigParser):
     def _format_targets(self, targets):
         try:
             t_fmt = self[SEC_FORMATTING][KEY_TARGET_FORMAT]
-        except (NoSectionError, NoOptionError):
+        except (KeyError, NoSectionError, NoOptionError):
             t_fmt = "{target}"
         if len(targets) > 1:
             last = targets[-1]
             ts = ", ".join(t_fmt.format(target=t) for t in targets[:-1])
             try:
                 a = self[SEC_FORMATTING][KEY_AND]
-            except (NoSectionError, NoOptionError):
+            except (KeyError, NoSectionError, NoOptionError):
                 a = "and"
             return "{} {} {}".format(ts, a, t_fmt.format(target=last))
         return t_fmt.format(target=targets[0])
@@ -150,7 +172,7 @@ class Slapper(ConfigParser):
     def _format_command(self, cmds, replacements):
         try:
             maxtries = int(self[SEC_SETTINGS][KEY_RECURSION])
-        except (NoSectionError, NoOptionError, ValueError):
+        except (KeyError, NoSectionError, NoOptionError, ValueError):
             maxtries = 8
         tmps = None
         tries = 0
@@ -205,10 +227,17 @@ class Slapper(ConfigParser):
         try:
             count = int(self[SEC_COUNT][KEY_COUNT]) + 1
             self[SEC_COUNT][KEY_COUNT] = str(count)
-        except (NoSectionError, NoOptionError):
+        except (KeyError, NoSectionError, NoOptionError):
             pass
         ts = self._format_targets(targets)
-        for key, command in sorted(self[SEC_COMMANDS]):
-            self._do_slap(command, ts, definitions)
+        if py.major == 2:
+        ##### PYTHON 2 #####
+            for key, command in sorted(self[SEC_COMMANDS]):
+                self._do_slap(command, ts, definitions)
+        ##### PYTHON 2 #####
+        if py.major == 3:
+        ##### PYTHON 3 #####
+            for key in sorted(self[SEC_COMMANDS]):
+                self._do_slap(self[SEC_COMMANDS][key], ts, definitions)
         if optionals:
             self._optionals(ts, optionals, definitions)
