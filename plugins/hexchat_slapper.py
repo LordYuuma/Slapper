@@ -41,14 +41,14 @@ DEFAULT_CONF = cleandoc(
     fish2 = sligthly smaller trout
 
     [count]
-    count = 0
+    targets = 0
 
     [commands]
     default = me slaps {targets} with a {fish}.
 
     [optionals]
     one more = me then uses a {fish2} to slap {targets} again.
-    print count = me has already slapped {count} persons with his {fish}.
+    print count = me has already slapped {count targets} persons with his {fish}.
     """)
 
 PREFERENCE_CONFDIR = "slapper_cfg_dir"

@@ -13,9 +13,9 @@ fish2 = sligthly smaller trout
 
 [count]
 # how often your slapper has been used until now
-count = 0
-# a command, which is executed after the normal and optional ones.
-print_count = me has already slapped {count} persons with his {fish}.
+usages = 0
+# how many people have already been slapped
+targets = 0
 
 [commands]
 # these are executed in alphabetical order
@@ -24,4 +24,4 @@ default = me slaps {targets} with a {fish}.
 [optionals]
 # these are executed in the order the user specified them
 one more = me then uses a {fish2} to slap {targets} again.
-print count = me has already slapped {count} persons with his {fish}.
+print count = me has already slapped {count targets} persons with his {fish}.
