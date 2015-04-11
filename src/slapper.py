@@ -38,8 +38,8 @@ KEY_AND = "and"
 KEY_COUNT = "count"
 KEY_OBJECT = "object"
 KEY_RECURSION = "recursion depth"
+KEY_TARGETS = "targets"
 KEY_TARGET_FORMAT = "target format"
-KEY_PRINT_COUNT = "print count"
 
 # defaults
 DEF_CMDKEY = "default"
@@ -148,8 +148,12 @@ class Slapper(ConfigParser):
             count = int(self[SEC_COUNT][KEY_COUNT])
         except (KeyError, NoSectionError, NoOptionError, ValueError):
             count = 0
+        try:
+            count_targets = int(self[SEC_COUNT][KEY_TARGETS])
+        except (KeyError, NoSectionError, NoOptionError, ValueError):
+            count_targets = 0
         replacements.update({"count": count, "count ordinal": ordinal(count),
-                             "targets": targets})
+                             "count targets": count_targets, "targets": targets})
         return replacements
 
     # Takes a list of targets and formats them according to the slapper's formatting options
@@ -159,6 +163,10 @@ class Slapper(ConfigParser):
             t_fmt = self[SEC_FORMATTING][KEY_TARGET_FORMAT]
         except (KeyError, NoSectionError, NoOptionError):
             t_fmt = "{target}"
+        try:
+            self[SEC_COUNT][KEY_TARGETS] = str(int(self[SEC_COUNT][KEY_TARGETS]) + len(targets))
+        except (KeyError, NoSectionError, NoOptionError):
+            pass
         if len(targets) > 1:
             last = targets[-1]
             ts = ", ".join(t_fmt.format(target=t) for t in targets[:-1])
