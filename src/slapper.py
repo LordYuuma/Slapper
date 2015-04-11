@@ -35,11 +35,11 @@ SEC_SETTINGS = "settings"
 
 # key names used internally
 KEY_AND = "and"
-KEY_COUNT = "count"
 KEY_OBJECT = "object"
 KEY_RECURSION = "recursion depth"
 KEY_TARGETS = "targets"
 KEY_TARGET_FORMAT = "target format"
+KEY_USAGES = "usages"
 
 # defaults
 DEF_CMDKEY = "default"
@@ -85,10 +85,6 @@ class Slapper(ConfigParser):
             self.add_section(SEC_REPLACEMENTS)
         if not self.has_option(SEC_REPLACEMENTS, KEY_OBJECT):
             self.set(SEC_REPLACEMENTS, KEY_OBJECT, self.name)
-        if not self.has_section(SEC_COUNT):
-            self.add_section(SEC_COUNT)
-        if not self.has_option(SEC_COUNT, KEY_COUNT):
-            self.set(SEC_SLAPPER, KEY_COUNT, 0)
         if not self.has_section(SEC_COMMANDS):
             self.add_section(SEC_COMMANDS)
         if not len(self[SEC_COMMANDS]):
@@ -138,14 +134,14 @@ class Slapper(ConfigParser):
         if definitions:
             replacements.update(definitions)
         try:
-            count = int(self[SEC_COUNT][KEY_COUNT])
+            count_usages = int(self[SEC_COUNT][KEY_USAGES])
         except (KeyError, NoSectionError, NoOptionError, ValueError):
-            count = 0
+            count_usages = 0
         try:
             count_targets = int(self[SEC_COUNT][KEY_TARGETS])
         except (KeyError, NoSectionError, NoOptionError, ValueError):
             count_targets = 0
-        replacements.update({"count": count, "count ordinal": ordinal(count),
+        replacements.update({"count usages": count_usages,
                              "count targets": count_targets, "targets": targets})
         return replacements
 
@@ -226,8 +222,7 @@ class Slapper(ConfigParser):
                         be formattable
         """
         try:
-            count = int(self[SEC_COUNT][KEY_COUNT]) + 1
-            self[SEC_COUNT][KEY_COUNT] = str(count)
+            self[SEC_COUNT][KEY_USAGES] = str(int(self[SEC_COUNT][KEY_USAGES]) + 1)
         except (KeyError, NoSectionError, NoOptionError):
             pass
         ts = self._format_targets(targets)
