@@ -45,17 +45,10 @@ KEY_TARGET_FORMAT = "target format"
 DEF_CMDKEY = "default"
 DEF_CMDSLAP = "me slaps {targets} with {object}."
 
-# from this codegolf:
-# http://codegolf.stackexchange.com/questions/4707/outputting-ordinal-numbers-1st-2nd-3rd#answer-4712
-ordinal = lambda n: "{}{}".format(n, "tsnrhtdd"[(n / 10 % 10 != 1) * (n % 10 < 4) * n % 10::4])
-
-
-# utility class for ConfigParser, as it does not yet introduce it's own sections.
-# Also it has autoupdate for the file like HexChat Preferences
-
-
 if py.major == 2:
 ##### PYTHON 2 #####
+# utility class for ConfigParser, as it does not yet introduce it's own sections.
+# Also it has autoupdate for the file like HexChat Preferences
     class ConfigParserSection(object):
 
         def __init__(self, parser, section):
