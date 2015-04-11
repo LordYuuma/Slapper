@@ -22,12 +22,15 @@ Usage:
 ------
 ### Syntax
 `/SLAP [-h] [-c slapper [slapper ...]] [-d key value] [-r] [-s slapper] [-o optional] target [target ...]`
+The syntax may vary for different plugins (currently, the Hexchat version includes even more options), but the ones above should always be included.
 ### Positional Arguments
 `target` is a target. You can have as many as you want.
 ### Optional Arguments
 `-c|--choice` defines a list of slappers (in your slapper directory) to choose from randomly. Have another option or add `--` before the target list to not confuse the parser ;)
 
 `-d|--definition` can be used to define a key value pair. If key is used in a slapper command, it will be replaced with value.
+
+`-h|--help` prints a help, also explaining the syntax of the plugin in usage.
 
 `-r|--random` same as choice, but with all slappers in your slapper directory.
 
