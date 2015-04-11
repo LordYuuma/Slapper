@@ -1,3 +1,6 @@
+5.2:
+    Added target counting.
+    Improved count handling.
 5.1:
     Adding Python 3 compatibility.
 5.0:
