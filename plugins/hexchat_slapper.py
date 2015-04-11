@@ -20,7 +20,7 @@ __module_description__ = "An extensible '/slap' command for the HexChat IRC clie
 __author__ = "LordYuuma"
 
 import hexchat
-from slapper import Slapper, NoSectionError, NoOptionError, SEC_COUNT, KEY_USAGES
+from slapper import Slapper, NoSectionError, NoOptionError, SEC_COUNT, KEY_USAGES, KEY_TARGETS
 from argparse import ArgumentParser, REMAINDER
 from inspect import cleandoc
 from os import listdir, makedirs
@@ -99,7 +99,11 @@ class HexChatSlapper(Slapper):
         Slapper.slap(self, targets, optionals, definitions)
         if self.test:
             try:
-                self[SEC_COUNT][KEY_USAGES] = str(int(self[SEC_COUNT][KEY_USAGES] - 1))
+                self[SEC_COUNT][KEY_USAGES] = str(int(self[SEC_COUNT][KEY_USAGES]) - 1)
+            except (KeyError, NoSectionError, NoOptionError):
+                pass
+            try:
+                self[SEC_COUNT][KEY_TARGETS] = str(int(self[SEC_COUNT][KEY_TARGETS]) - len(targets))
             except (KeyError, NoSectionError, NoOptionError):
                 pass
 
