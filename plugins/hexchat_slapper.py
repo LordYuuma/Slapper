@@ -134,7 +134,7 @@ class SlapParser(ArgumentParser):
         self.add_argument('-d', '--define', type=str, nargs=2, action="append",
                           dest="definitions", metavar=("key", "value"),
                           help="override a replacement definition of the used slapper")
-        self.add_argument("--print-config", action="store_true",
+        self.add_argument("--print-config", nargs='+', metavar='slapper',
                           help="print the configuration of a slapper")
         self.add_argument("-r", "--random", action='store_true', help="use random slapper")
         self.add_argument("-s", "--slapper", type=str, default=DEFAULT_SLAPPER,
@@ -157,16 +157,19 @@ def callback(word, word_eol, userdata):
     parser = SlapParser()
     try:
         slap = parser.parse_args(split(word_eol[1]))
+        if slap.print_config:
+            for config in slap.print_config:
+                with HexChatSlapper(config) as slapper:
+                    print("Configuration for {} ({}):".format(config, slapper._file))
+                    slapper.write(stdout)
+            return hexchat.EAT_ALL
         if slap.random or slap.choices:
             if not slap.choices:
                 slap.choices = get_slappers()
             slap.slapper = choice(slap.choices)
         with HexChatSlapper(slap.slapper) as slapper:
             slapper.test = slap.test
-            if slap.print_config:
-                slapper.write(stdout)
-            else:
-                slapper.slap(slap.targets, optionals=slap.optionals, definitions=slap.definitions)
+            slapper.slap(slap.targets, optionals=slap.optionals, definitions=slap.definitions)
     except IndexError:
         parser.print_help()
         if not slap.print_config and not slap.targets:
