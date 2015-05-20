@@ -84,10 +84,8 @@ class HexChatSlapper(Slapper):
                 return join(pd, f)
         return join(pd, name)
 
-    def _define_replacements(self, targets, definitions):
-        replacements = Slapper._define_replacements(self, targets, definitions)
+    def update_replacements(self, replacements, targets, definitions):
         replacements.update({"nick": hexchat.get_info("nick")})
-        return replacements
 
     def exec_command(self, cmd):
         if self.test:

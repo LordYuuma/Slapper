@@ -104,21 +104,6 @@ class Slapper(ConfigParser):
         self._file = _file
 
     def _define_replacements(self, targets, definitions):
-        """
-        Formats the replacement dictionary to match the definitions given by the file and the
-        user. Subclasses should ALWAYS call this on the first line of their own method, should
-        they need to override this.
-
-        Subclass implementations should NOT use targets and definitions themselves. They are
-        already handled here.
-        Args:
-            targets: The targets given by the caller.
-            definitions: additional definitions given by the caller.
-        Returns:
-            the replacement dictionary for the format strings
-        Throws:
-            None
-        """
         replacements = {}
         if py.major == 2:
         ##### PYTHON 2 #####
@@ -143,6 +128,7 @@ class Slapper(ConfigParser):
             count_targets = 0
         replacements.update({"count usages": count_usages,
                              "count targets": count_targets, "targets": targets})
+        self.update_replacements(replacements, targets, definitions)
         return replacements
 
     # Takes a list of targets and formats them according to the slapper's formatting options
@@ -237,3 +223,20 @@ class Slapper(ConfigParser):
                 self._do_slap(self[SEC_COMMANDS][key], ts, definitions)
         if optionals:
             self._optionals(ts, optionals, definitions)
+
+    def update_replacements(self, replacements, targets, definitions):
+        """
+        Use this call to update the replacements of the slapper according to the replacements
+        you are about to make. Note that targets and all definitions in definitions have
+        already been added.
+
+        Args:
+            replacements: the replacements to update
+            targets: the targets of the slap
+            definitions: the definitions, which where already added
+        Returns:
+            None
+        Raises:
+            None
+        """
+        pass
