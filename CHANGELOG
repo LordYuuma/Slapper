@@ -1,3 +1,5 @@
+5.2.1:
+    Add replacement update function.
 5.2:
     Added target counting.
     Improved count handling.
