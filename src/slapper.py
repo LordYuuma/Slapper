@@ -41,10 +41,6 @@ KEY_TARGETS = "targets"
 KEY_TARGET_FORMAT = "target format"
 KEY_USAGES = "usages"
 
-# defaults
-DEF_CMDKEY = "default"
-DEF_CMDSLAP = "me slaps {targets} with {object}."
-
 if py.major == 2:
 ##### PYTHON 2 #####
 # utility class for ConfigParser, as it does not yet introduce it's own sections.
@@ -77,22 +73,8 @@ class Slapper(ConfigParser):
         __repr__ = lambda self: "{" + ", ".join(["\'{}\': {}".format(section, repr(self[section])) for section in self.sections()]) + "}"
     ##### PYTHON 2 #####
 
-    def _check_sanity(self):
-        # This just checks, if every option, that needs to exist, also exists properly.
-        # This should only be called by the user, if he thinks, he has REALLY
-        # messed up.
-        if not self.has_section(SEC_REPLACEMENTS):
-            self.add_section(SEC_REPLACEMENTS)
-        if not self.has_option(SEC_REPLACEMENTS, KEY_OBJECT):
-            self.set(SEC_REPLACEMENTS, KEY_OBJECT, self.name)
-        if not self.has_section(SEC_COMMANDS):
-            self.add_section(SEC_COMMANDS)
-        if not len(self[SEC_COMMANDS]):
-            self.set(SEC_COMMANDS, DEF_CMDKEY, DEF_CMDSLAP)
-
     def __enter__(self):
-        if not self.read(self._file):
-            self._check_sanity()
+        self.read(self._file)
         return self
 
     def __exit__(self, type, value, traceback):
