@@ -105,17 +105,12 @@ class Slapper(ConfigParser):
 
     def _define_replacements(self, targets, definitions):
         replacements = {}
-        if py.major == 2:
-        ##### PYTHON 2 #####
-            try:
+        if self.has_section(SEC_REPLACEMENTS):
+            if py.major == 2:
                 replacements.update(self[SEC_REPLACEMENTS].to_dict())
-            except (NoSectionError, NoOptionError):
-                pass
-        ##### PYTHON 2 #####
-        if py.major == 3:
-        ##### PYTHON 3 #####
-            replacements.update({key: self[SEC_REPLACEMENTS][key] for key in self[SEC_REPLACEMENTS]})
-        ##### PYTHON 3 #####
+            if py.major == 3:
+                replacements.update({key: self[SEC_REPLACEMENTS][key]
+                                     for key in self[SEC_REPLACEMENTS]})
         if definitions:
             replacements.update(definitions)
 
