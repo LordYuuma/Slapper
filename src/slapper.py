@@ -118,14 +118,16 @@ class Slapper(ConfigParser):
         ##### PYTHON 3 #####
         if definitions:
             replacements.update(definitions)
-        try:
+
+        if self.has_option(SEC_COUNT, KEY_USAGES):
             count_usages = int(self[SEC_COUNT][KEY_USAGES])
-        except (KeyError, NoSectionError, NoOptionError, ValueError):
+        else:
             count_usages = 0
-        try:
+        if self.has_option(SEC_COUNT, KEY_TARGETS):
             count_targets = int(self[SEC_COUNT][KEY_TARGETS])
-        except (KeyError, NoSectionError, NoOptionError, ValueError):
+        else:
             count_targets = 0
+
         replacements.update({"count usages": count_usages,
                              "count targets": count_targets, "targets": targets})
         self.update_replacements(replacements, targets, definitions)
@@ -134,28 +136,27 @@ class Slapper(ConfigParser):
     # Takes a list of targets and formats them according to the slapper's formatting options
     # to return a string, that looks like something you can write as part of a sentence.
     def _format_targets(self, targets):
-        try:
+        if self.has_option(SEC_FORMATTING, KEY_TARGET_FORMAT):
             t_fmt = self[SEC_FORMATTING][KEY_TARGET_FORMAT]
-        except (KeyError, NoSectionError, NoOptionError):
+        else:
             t_fmt = "{target}"
-        try:
+        if self.has_option(SEC_COUNT, KEY_TARGETS):
             self[SEC_COUNT][KEY_TARGETS] = str(int(self[SEC_COUNT][KEY_TARGETS]) + len(targets))
-        except (KeyError, NoSectionError, NoOptionError):
-            pass
         if len(targets) > 1:
             last = targets[-1]
             ts = ", ".join(t_fmt.format(target=t) for t in targets[:-1])
-            try:
+
+            if self.has_option(SEC_FORMATTING, KEY_AND):
                 a = self[SEC_FORMATTING][KEY_AND]
-            except (KeyError, NoSectionError, NoOptionError):
+            else:
                 a = "and"
             return "{} {} {}".format(ts, a, t_fmt.format(target=last))
         return t_fmt.format(target=targets[0])
 
     def _format_command(self, cmds, replacements):
-        try:
+        if self.has_option(SEC_SETTINGS, KEY_RECURSION):
             maxtries = int(self[SEC_SETTINGS][KEY_RECURSION])
-        except (KeyError, NoSectionError, NoOptionError, ValueError):
+        else:
             maxtries = 8
         tmps = None
         tries = 0
@@ -207,10 +208,8 @@ class Slapper(ConfigParser):
             ValueError: a misconfiguration causes a format string to not
                         be formattable
         """
-        try:
+        if self.has_option(SEC_COUNT, KEY_USAGES):
             self[SEC_COUNT][KEY_USAGES] = str(int(self[SEC_COUNT][KEY_USAGES]) + 1)
-        except (KeyError, NoSectionError, NoOptionError):
-            pass
         ts = self._format_targets(targets)
         if py.major == 2:
         ##### PYTHON 2 #####
