@@ -117,7 +117,8 @@ class Slapper(ConfigParser):
         else:
             t_fmt = "{target}"
         if self.has_option(SEC_COUNT, KEY_TARGETS):
-            self[SEC_COUNT][KEY_TARGETS] = str(int(self[SEC_COUNT][KEY_TARGETS]) + len(targets))
+            self[SEC_COUNT][KEY_TARGETS] = str(int(self[SEC_COUNT][KEY_TARGETS]) +
+                                           len(targets))
         if len(targets) > 1:
             last = targets[-1]
             ts = ", ".join(t_fmt.format(target=t) for t in targets[:-1])
@@ -127,7 +128,8 @@ class Slapper(ConfigParser):
             else:
                 a = "and"
             return "{} {} {}".format(ts, a, t_fmt.format(target=last))
-        return t_fmt.format(target=targets[0])
+        else:
+            return t_fmt.format(target=targets[0])
 
     def _format_command(self, cmds, replacements):
         command = cmds
