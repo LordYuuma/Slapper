@@ -130,6 +130,7 @@ class Slapper(ConfigParser):
         return t_fmt.format(target=targets[0])
 
     def _format_command(self, cmds, replacements):
+        command = cmds
         if self.has_option(SEC_SETTINGS, KEY_RECURSION):
             maxtries = int(self[SEC_SETTINGS][KEY_RECURSION])
         else:
