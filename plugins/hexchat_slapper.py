@@ -61,7 +61,7 @@ class HexChatSlapper(Slapper):
         _file = HexChatSlapper._guess_file(name)
         Slapper.__init__(self, _file)
         self.test = False
-        self.addAfterSlapHook(self._test_reset)
+        self.hook_after_slap(self._test_reset)
 
     @staticmethod
     def get_slapperdir():

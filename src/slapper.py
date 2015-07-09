@@ -86,10 +86,10 @@ class Slapper(ConfigParser):
         self._before = []
         self._after = []
 
-    def addBeforeSlapHook(self, hook):
+    def hook_before_slap(self, hook):
         self._before.append(hook)
 
-    def addAfterSlapHook(self, hook):
+    def hook_after_slap(self, hook):
         self._after.append(hook)
 
     def _define_replacements(self, targets, definitions):
