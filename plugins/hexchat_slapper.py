@@ -128,7 +128,8 @@ class SlapParser(ArgumentParser):
     def __init__(self):
         ArgumentParser.__init__(self, prog="/slap")
         self.add_argument('-c', '--choice', type=str, nargs='+', dest="choices",
-                          metavar="slapper", help="define choices for random. implies random")
+                          metavar="slapper",
+                          help="define choices for random. implies random")
         self.add_argument('-d', '--define', type=str, nargs=2, action="append",
                           dest="definitions", metavar=("key", "value"),
                           help="override a replacement definition of the used slapper")
