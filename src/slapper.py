@@ -42,9 +42,8 @@ KEY_TARGET_FORMAT = "target format"
 KEY_USAGES = "usages"
 
 if py.major == 2:
-##### PYTHON 2 #####
+##### BEGIN PYTHON 2 #####
 # utility class for ConfigParser, as it does not yet introduce it's own sections.
-# Also it has autoupdate for the file like HexChat Preferences
     class ConfigParserSection(object):
 
         def __init__(self, parser, section):
@@ -62,16 +61,16 @@ if py.major == 2:
         __repr__ = lambda self: "{" + ", ".join(["\'{}\' : \'{}\'".format(key, value) for key, value in self]) + "}"
 
         to_dict = lambda self: {item[0]: item[1] for item in self.parser.items(self.section)}
-##### PYTHON 2 #####
+##### END PYTHON 2 #####
 
 class Slapper(ConfigParser):
 
     if py.major == 2:
-    ##### PYTHON 2 #####
+    ##### BEGIN PYTHON 2 #####
         __getitem__ = lambda self, section: ConfigParserSection(self, section)
         __iter__ = lambda self: (self[section] for section in self.sections())
         __repr__ = lambda self: "{" + ", ".join(["\'{}\': {}".format(section, repr(self[section])) for section in self.sections()]) + "}"
-    ##### PYTHON 2 #####
+    ##### END PYTHON 2 #####
 
     def __enter__(self):
         self.read(self._file)
@@ -188,15 +187,18 @@ class Slapper(ConfigParser):
         if self.has_option(SEC_COUNT, KEY_USAGES):
             self[SEC_COUNT][KEY_USAGES] = str(int(self[SEC_COUNT][KEY_USAGES]) + 1)
         ts = self._format_targets(targets)
+
         if py.major == 2:
-        ##### PYTHON 2 #####
+        ##### BEGIN PYTHON 2 #####
             for key, command in sorted(self[SEC_COMMANDS]):
                 self._do_slap(command, ts, definitions)
-        ##### PYTHON 2 #####
+        ##### END PYTHON 2 #####
         if py.major == 3:
-        ##### PYTHON 3 #####
+        ##### BEGIN PYTHON 3 #####
             for key in sorted(self[SEC_COMMANDS]):
                 self._do_slap(self[SEC_COMMANDS][key], ts, definitions)
+        ##### END PYTHON 3 #####
+
         if optionals:
             self._optionals(ts, optionals, definitions)
 
