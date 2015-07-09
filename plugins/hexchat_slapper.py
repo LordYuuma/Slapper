@@ -160,19 +160,23 @@ def callback(word, word_eol, userdata):
             raise SystemExit
 
         slap = parser.parse_args(split(word_eol[1]))
+
         if slap.print_config:
             for config in slap.print_config:
                 with HexChatSlapper(config) as slapper:
                     print("Configuration for {} ({}):".format(config, slapper._file))
                     slapper.write(stdout)
             return hexchat.EAT_ALL
+
         if slap.random or slap.choices:
             if not slap.choices:
                 slap.choices = get_slappers()
             slap.slapper = choice(slap.choices)
+
         with HexChatSlapper(slap.slapper) as slapper:
             slapper.test = slap.test
-            slapper.slap(slap.targets, optionals=slap.optionals, definitions=slap.definitions)
+            slapper.slap(slap.targets, optionals=slap.optionals,
+                         definitions=slap.definitions)
     except IndexError:
         parser.print_help()
         if not slap.print_config and not slap.targets:
