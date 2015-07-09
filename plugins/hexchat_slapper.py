@@ -154,6 +154,11 @@ def get_slappers():
 def callback(word, word_eol, userdata):
     parser = SlapParser()
     try:
+        if(len(word) < 2):
+            parser.print_usage()
+            print("Error: You need at least one target.")
+            raise SystemExit
+
         slap = parser.parse_args(split(word_eol[1]))
         if slap.print_config:
             for config in slap.print_config:
@@ -170,12 +175,8 @@ def callback(word, word_eol, userdata):
             slapper.slap(slap.targets, optionals=slap.optionals, definitions=slap.definitions)
     except IndexError:
         parser.print_help()
-        try:
-            if not slap.print_config and not slap.targets:
-                print("Error: You need at least one target.")
-        except UnboundLocalError:
-            # no args were given
-            pass
+        if not slap.print_config and not slap.targets:
+            print("Error: You need at least one target.")
     except SystemExit:
         # ArgumentParser raises SystemExit when called with -h/--help
         # this here is just so that the user can actually see the help
