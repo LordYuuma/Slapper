@@ -83,6 +83,14 @@ class Slapper(ConfigParser):
     def __init__(self, _file):
         ConfigParser.__init__(self)
         self._file = _file
+        self._before = []
+        self._after = []
+
+    def addBeforeSlapHook(self, hook):
+        self._before.append(hook)
+
+    def addAfterSlapHook(self, hook):
+        self._after.append(hook)
 
     def _define_replacements(self, targets, definitions):
         replacements = {}
@@ -187,6 +195,10 @@ class Slapper(ConfigParser):
             ValueError: a misconfiguration causes a format string to not
                         be formattable
         """
+
+        for hook in self._before:
+            hook(targets, optionals, definitions)
+
         if self.has_option(SEC_COUNT, KEY_USAGES):
             self[SEC_COUNT][KEY_USAGES] = str(int(self[SEC_COUNT][KEY_USAGES]) + 1)
         ts = self._format_targets(targets)
@@ -204,6 +216,9 @@ class Slapper(ConfigParser):
 
         if optionals:
             self._optionals(ts, optionals, definitions)
+
+        for hook in self._after:
+            hook(targets, optionals, definitions)
 
     def update_replacements(self, replacements, targets, definitions):
         """

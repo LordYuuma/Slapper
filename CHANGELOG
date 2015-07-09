@@ -1,3 +1,5 @@
+5.3:
+    Add hooks before and after the main
 5.2.2:
     Use has_section and has_option instead of Exceptions.
     Removal of check_sanity (was not worth fixing)

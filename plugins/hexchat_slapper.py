@@ -15,7 +15,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 __module_name__ = "Slapper"
-__module_version__ = "5.2"
+__module_version__ = "5.3"
 __module_description__ = "An extensible '/slap' command for the HexChat IRC client."
 __author__ = "LordYuuma"
 
@@ -61,6 +61,7 @@ class HexChatSlapper(Slapper):
         _file = HexChatSlapper._guess_file(name)
         Slapper.__init__(self, _file)
         self.test = False
+        self.addAfterSlapHook(self._test_reset)
 
     @staticmethod
     def get_slapperdir():
@@ -93,8 +94,7 @@ class HexChatSlapper(Slapper):
         elif(cmd.split(" ")[0].lower() in ["me", "say"]):
             hexchat.command(cmd)
 
-    def slap(self, targets, optionals=None, definitions=None):
-        Slapper.slap(self, targets, optionals, definitions)
+    def _test_reset(self, targets, optionals, definitions):
         if self.test:
             try:
                 self[SEC_COUNT][KEY_USAGES] = str(int(self[SEC_COUNT][KEY_USAGES]) - 1)
@@ -104,7 +104,6 @@ class HexChatSlapper(Slapper):
                 self[SEC_COUNT][KEY_TARGETS] = str(int(self[SEC_COUNT][KEY_TARGETS]) - len(targets))
             except (KeyError, NoSectionError, NoOptionError):
                 pass
-
 
 def check_defaults():
     confdir = HexChatSlapper.get_slapperdir()
